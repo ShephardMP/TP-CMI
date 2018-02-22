@@ -6,6 +6,7 @@
 import sys
 import tooltip
 
+
 try:
     from Tkinter import *
 except ImportError:
@@ -45,6 +46,22 @@ def destroy_Ventana_principal():
 
 
 class Ventana_principal:
+    
+    def insertarToolTips(self):
+        
+        stringCategorias="Este boton sirve para cargar las categorias que ligan un campo de los dataset a unas palabras claves.\n Por ejemplo Economia se define a partir del campo 'titulo_secundario' con la palabra clave 'Administracion'\n"
+        stringFiltros="Este boton sirve para cargar filtros definidos en un archivo, por ejemplo que la fecha de ingreso sea en el 2017"
+        stringArchivos="Este boton permite cargar los archivos de notas y alumnos en formato excel"
+        tooltip.createToolTip(self.CargarCategorias,stringCategorias)
+        tooltip.createToolTip(self.CargarArchivo,stringArchivos)
+        tooltip.createToolTip(self.cargarFiltros,stringFiltros)
+        
+    def insertarCambios(self):
+        #ESTE METODO GENERA CAMBIOS A LA INTERFAZ, POR EJEMPLO, LE DA A LOS BOTONES TOOLTIP Y LOS LIGA A OTRAS FUNCIONES
+        self.insertarToolTips()
+        
+        
+        
     def __init__(self, top=None):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
@@ -71,12 +88,12 @@ class Ventana_principal:
         self.CargarCategorias.configure(foreground="#000000")
         self.CargarCategorias.configure(highlightbackground="#d9d9d9")
         self.CargarCategorias.configure(highlightcolor="black")
-        self._img1 = PhotoImage(file="./resources/categorías2.png")
+        self._img1 = PhotoImage(file="./resources/categor�as2.png")
         self.CargarCategorias.configure(image=self._img1)
         self.CargarCategorias.configure(pady="0")
         self.CargarCategorias.configure(text='''categorias''')
-        tooltip.createToolTip(self.CargarCategorias, "Cargar categorías")
         
+     
 
         self.CargarArchivo = Button(top)
         self.CargarArchivo.place(relx=0.23, rely=0.01, height=104, width=105)
@@ -91,7 +108,6 @@ class Ventana_principal:
         self.CargarArchivo.configure(image=self._img2)
         self.CargarArchivo.configure(pady="0")
         self.CargarArchivo.configure(text='''archivo''')
-        tooltip.createToolTip(self.CargarArchivo, "Cargar archivo .xlsx")
 
         self.cargarFiltros = Button(top)
         self.cargarFiltros.place(relx=0.01, rely=0.01, height=103, width=104)
@@ -106,11 +122,10 @@ class Ventana_principal:
         self.cargarFiltros.configure(image=self._img3)
         self.cargarFiltros.configure(pady="0")
         self.cargarFiltros.configure(text='''filtro''')
-        tooltip.createToolTip(self.cargarFiltros, "Cargar filtros")
 
 
 
-
+        self.insertarCambios()
 
 
 if __name__ == '__main__':
