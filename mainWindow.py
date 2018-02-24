@@ -21,11 +21,11 @@ except ImportError:
 
 import mainWindow_support
 
-def vp_start_gui():
+def vp_start_gui(adminInterfaz):
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = Tk()
-    top = Ventana_principal (root)
+    top = Ventana_principal (root,adminInterfaz)
     mainWindow_support.init(root, top)
     root.mainloop()
 
@@ -46,6 +46,8 @@ def destroy_Ventana_principal():
 
 
 class Ventana_principal:
+
+    adminInterfaz=None
     
     def insertarToolTips(self):
         
@@ -56,13 +58,22 @@ class Ventana_principal:
         tooltip.createToolTip(self.CargarArchivo,stringArchivos)
         tooltip.createToolTip(self.cargarFiltros,stringFiltros)
         
+
+    def insertarAccionesBotones(self):
+        #self.CargarArchivo.configure(command=self.establecerFiltro)
+        self.CargarArchivo.configure(command=self.adminInterfaz.cargarDatos)
+        self.CargarCategorias.configure(command=self.adminInterfaz.cargarCategorias)
+        self.cargarFiltros.configure(command=self.adminInterfaz.cargarFiltros)
+    
     def insertarCambios(self):
         #ESTE METODO GENERA CAMBIOS A LA INTERFAZ, POR EJEMPLO, LE DA A LOS BOTONES TOOLTIP Y LOS LIGA A OTRAS FUNCIONES
         self.insertarToolTips()
+        self.insertarAccionesBotones()
         
+    
         
-        
-    def __init__(self, top=None):
+    def __init__(self, top=None,adminInterfaz=None):
+
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -77,7 +88,7 @@ class Ventana_principal:
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
 
-
+        self.adminInterfaz=adminInterfaz #referencia al administrador de interfaz que se comunica con el admin de modelo para manejar la parte logica
 
         self.CargarCategorias = Button(top)
         self.CargarCategorias.place(relx=0.12, rely=0.01, height=103, width=104)
@@ -88,7 +99,7 @@ class Ventana_principal:
         self.CargarCategorias.configure(foreground="#000000")
         self.CargarCategorias.configure(highlightbackground="#d9d9d9")
         self.CargarCategorias.configure(highlightcolor="black")
-        self._img1 = PhotoImage(file="./resources/categorías2.png")
+        self._img1 = PhotoImage(file="./resources/categorÃ­as2.png")
         self.CargarCategorias.configure(image=self._img1)
         self.CargarCategorias.configure(pady="0")
         self.CargarCategorias.configure(text='''categorias''')
@@ -109,6 +120,7 @@ class Ventana_principal:
         self.CargarArchivo.configure(pady="0")
         self.CargarArchivo.configure(text='''archivo''')
 
+
         self.cargarFiltros = Button(top)
         self.cargarFiltros.place(relx=0.01, rely=0.01, height=103, width=104)
         self.cargarFiltros.configure(activebackground="#d9d9d9")
@@ -127,7 +139,9 @@ class Ventana_principal:
 
         self.insertarCambios()
 
+        self.insertarCambios()
 
+    
 if __name__ == '__main__':
     vp_start_gui()
 
