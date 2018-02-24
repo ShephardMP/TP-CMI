@@ -46,8 +46,8 @@ def destroy_Ventana_principal():
 
 
 class Ventana_principal:
+
     adminInterfaz=None
-    
     
     def insertarToolTips(self):
         
@@ -58,6 +58,7 @@ class Ventana_principal:
         tooltip.createToolTip(self.CargarArchivo,stringArchivos)
         tooltip.createToolTip(self.cargarFiltros,stringFiltros)
         
+
     def insertarAccionesBotones(self):
         #self.CargarArchivo.configure(command=self.establecerFiltro)
         self.CargarArchivo.configure(command=self.adminInterfaz.cargarDatos)
@@ -72,6 +73,7 @@ class Ventana_principal:
     
         
     def __init__(self, top=None,adminInterfaz=None):
+
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -97,7 +99,7 @@ class Ventana_principal:
         self.CargarCategorias.configure(foreground="#000000")
         self.CargarCategorias.configure(highlightbackground="#d9d9d9")
         self.CargarCategorias.configure(highlightcolor="black")
-        self._img1 = PhotoImage(file="./resources/categorías2.png")
+        self._img1 = PhotoImage(file="./resources/categorÃ­as2.png")
         self.CargarCategorias.configure(image=self._img1)
         self.CargarCategorias.configure(pady="0")
         self.CargarCategorias.configure(text='''categorias''')
@@ -117,7 +119,7 @@ class Ventana_principal:
         self.CargarArchivo.configure(image=self._img2)
         self.CargarArchivo.configure(pady="0")
         self.CargarArchivo.configure(text='''archivo''')
-        
+
 
         self.cargarFiltros = Button(top)
         self.cargarFiltros.place(relx=0.01, rely=0.01, height=103, width=104)
@@ -134,6 +136,8 @@ class Ventana_principal:
         self.cargarFiltros.configure(text='''filtro''')
 
 
+
+        self.insertarCambios()
 
         self.insertarCambios()
 
