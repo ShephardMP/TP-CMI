@@ -6,12 +6,15 @@ Created on Fri Feb 23 21:35:15 2018
 """
 
 import mainWindow
+import AdminModelo
 class AdminInterfaz:
     
     #SE ESPERA QUE SEAN STRINGS CON EL PATH A LSO ARCHIVOS DE DATOS
     adminModelo=None
+    categoriasCargadas=False
+    filtrosCargados=False
     def __init__(self,referenciaAdminModelo=None):
-        adminModelo=referenciaAdminModelo
+        self.adminModelo=referenciaAdminModelo
         mainWindow.vp_start_gui(self)
         
     
@@ -28,29 +31,37 @@ class AdminInterfaz:
         pass
     
     
-    def mostrarCluster(self):
-            pass
+    def mostrarCluster(self, columna1='titulo_secundario',columna2='nota'):
+        self.adminModelo.generarCluster(columna1,columna2)
+        print ('end cluster')
         
     def mostrarArbol(self):
         pass
     
-    def cargarDatos(self):
+    def cargarDatos(self,ruta=None):
         #cuando en la interfaz se preciona el boton de cargar el excel, se llama a este metodo que llama al metodo en adminModelo para cargar los datos
         print('adminInterfazCargarDatos')
-        pass
+        #aplica filtros y categorias a los archivos despues de cargar o no filtros
+        self.adminModelo.cargarDatos(ruta,aplicarFiltros=self.filtrosCargados,aplicarCategorias=self.categoriasCargadas)
+      
     
-    def cargarCategorias(self):
+    def cargarCategorias(self,ruta=None):
+        self.adminModelo.cargarCategorias(ruta)
+        self.categoriasCargadas=True
         print('adminInterfazCargarCategorias')
         #parecido a lo de filtro, llamar a la logica de adminModelo
-        pass
-    def cargarFiltros(self):
+      
+    def cargarFiltros(self,ruta=None):
         #parecido a lo de arriba, hay que definir un metodo en adminModelo que permita cargar los filtros
+        self.adminModelo.cargarFiltros(ruta)
+        self.filtrosCargados=True
         print('adminInterfazCargarFiltros')
-        pass
+        
     
 
 
 if __name__ == '__main__':
-    admin= AdminInterfaz()
+    model=AdminModelo.AdminModelo()
+    admin= AdminInterfaz(model)
 
 
