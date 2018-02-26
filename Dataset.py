@@ -22,11 +22,11 @@ class Dataset:
         return self.ds
 
 
-    def mergeCon(self, otroDataset, clave, forma='inner'):
+    def mergeCon(self, otroDataset, clave=None, forma='inner'):
         self.ds = self.getMerge(otroDataset, clave, forma).datos()
 
 
-    def getMerge(self, otroDataset, clave, forma='inner'):
+    def getMerge(self, otroDataset, clave=None, forma='inner'):
         out = Dataset()
         out.cargarDataframe(pandas.merge(self.datos(),otroDataset.datos(), on=clave,how=forma))
         return out
