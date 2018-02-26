@@ -71,3 +71,16 @@ class Dataset:
         
     def toArray(self):
         return self.ds.values
+    
+    def nombresColumnas(self):
+        return list(self.ds.columns.values)
+    
+    def getFila(self, index):
+        fila = self.ds.ix[index]
+        salida = []
+        for i in range(0, len(fila)):
+            salida.append(fila[i])
+        return salida
+    
+    def cantidadFilas(self):
+        return len(self.ds.index)
