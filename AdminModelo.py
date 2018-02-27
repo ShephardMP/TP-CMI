@@ -33,15 +33,17 @@ class AdminModelo:
         if(self.filtros is not None and aplicarFiltros is True):
             self.datasets[rutaArchivo].filtrar(self.filtros)
         if(self.categorias is not None and aplicarCategorias is True):
-            atr=arrCat[0].getNombreAtributo() #por ejemplo 'titlo_secundario'
+            atr=self.categorias[0].getNombreAtributo() #por ejemplo 'titlo_secundario'
             self.datasets[rutaArchivo].columnaToUpper(atr) #la categoria afecta a esto
-            for i,item in enumerate(arrCat):   #tambien creo que se puede el elemento directo 
-                    self.datasets[rutaArchivo].reemplazarValores(atr,arrCat[i].getKeys(), arrCat[i].getValorAsociado())
+            for i,item in enumerate(self.categorias):   #tambien creo que se puede el elemento directo 
+                    self.datasets[rutaArchivo].reemplazarValores(atr,self.categorias[i].getKeys(), self.categorias[i].getValorAsociado())
                     #HACE FALTA TRABAJAR SOBRE CATEGORIAS PARA AGREGAR VALORES INVALIDOS
                     
            
             self.datasets[rutaArchivo].reemplazarValores( atr, self.categoriasInvalidos, 'nan')
             self.datasets[rutaArchivo].eliminarValoresInvalidos( atr, 'nan')
+            
+        print(rutaArchivo)
     
         #dataset.eliminarPorGrupo('fecha_ingreso','legajo',lambda x: x is not None and x==x.min())
 
@@ -80,13 +82,14 @@ class AdminModelo:
                 dataMerge=self.datasets[clave]
                 counter=counter+1
             else:
-                print (type(self.datasets[clave]))
+               
                 dataMerge.mergeCon(self.datasets[clave])
         dataCluster = ds.Dataset()
         #dataCluster.cargarDataframe(dataMerge.seleccionarColumnas(['titulo_secundario','nota']))
         dataCluster.cargarDataframe(dataMerge.seleccionarColumnas([columna1,columna2]))
         newClust = clustGen.ClusterKMeans()
         newClust.generarCluster(dataCluster.toArray())
+        
         
 if __name__ == '__main__':
     adminMod=AdminModelo()
