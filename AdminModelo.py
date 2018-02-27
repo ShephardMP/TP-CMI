@@ -17,7 +17,7 @@ class AdminModelo:
    
     filtros=None
     cargadorDefecto=None
-    categorias=None
+    categorias=[]
     categoriasInvalidos=None
     
     def __init__(self):
@@ -52,22 +52,19 @@ class AdminModelo:
         self.filtros=fil.FiltroAND(fil.FiltroMayor('fecha_ingreso','2015-01-01'),fil.FiltroMenor('fecha_ingreso','2017-12-12'))
         
     
-    def cargarCategorias(self,rutaArchivo=None):
+    def cargarCategorias(self,rutaArchivo):
         
         #hay que hacer una logica para trabajar sobre archivos
-        ECONOMIA = cat.Categoria('titulo_secundario',0,['IMPOSITIVO', 'BS. Y SERV.', 'GESTION', 'ADMIN', 'EMPRESAS', 'BANCARIAS', 'ECONOMICAS', 'COMERCIAL','MERCANTIL','ECONOMIA','ADM', 'MUTUALES','CONTABLE','ECONOMÍA','BIENES', 'EMPRESA', 'EMPRESARIAL'])
-        NATURALES = cat.Categoria('titulo_secundario',1,['AGROPECUARIO', 'NATURALES', 'SALUD', 'CIENCIASBIOLOG','AGROPECUARIA', 'PROD. AGROP.', 'AMBIENTALES', 'BIOLOGICAS', 'LABORAT.', 'BIOLOGICA', 'NATURAL', 'ALIMENTACION', 'GANADERIA', 'LABORATORIO', 'AGRARIA', 'BIOTECNOLOGICO', 'AGRARIO', 'QUIMICA', 'BIOLOGIA', 'QUIMICO', 'BIOLOGICO', 'AGRICOLA', 'AGRONOMO'])
-        EXACTAS = cat.Categoria('titulo_secundario',2, ['EXACTAS', 'MATEMATICAS', 'FISICO-MATEMATICO', 'FÍSICO-MATEMÁTICAS', 'CIENCIASFISICO-MATEMAT.', 'FÍSICO-MATEMATICA'])
-        HUMANIDADES = cat.Categoria('titulo_secundario',3,['SOCIALES', 'HUMANIDADES', 'HUMANAS', 'SOCIAL', 'HUMANISTA', 'HUMAN.', 'COMUNICACION', 'HUMANISTICAS'])
-        LENGUAS = cat.Categoria('titulo_secundario',3, ['IDIOMAS', 'LENGUAS', 'LETRAS', 'IDIOMA'])
-        ARTE = cat.Categoria('titulo_secundario',4,['ARTE', 'DISEÑO', 'MUSICA', 'MUSICAL', 'ARTISTICA'])
-        COMPUTACION = cat.Categoria ('titulo_secundario',5,['COMPUTACION', 'INFORMATICA', 'A.DE SISTEM', 'INFORMACION', 'INFORMÁTICA', 'COMPUTACIÓN', 'COMPUTADORAS', 'PROGRAMACION'])
-        TURISMO = cat.Categoria('titulo_secundario',6,['TURISMO', 'TURISTICOS'])
-        CONSTRUCCION = cat.Categoria ('titulo_secundario',7,['CONSTRUCCION', 'MAESTRO MAYOR', 'CARPINTERO'])
-        MECANICA = cat.Categoria ('titulo_secundario',8,['MECANICA', 'ELECTROMECANICA', 'ELECTROMECANICO', 'ELECTRICISTA', 'MECANICO', 'AUTOMOTORES', 'ELECTRÓNICA', 'ELECTRONICA', 'ELECTRONICO', 'ELECTROTECNIA'])
-        DOCENTE = cat.Categoria ('titulo_secundario',9, ['DOCENTE', 'PEDAGOGICO', 'PEDAGÓGICO', 'PEDAGOGICA', 'EDUCACION FISICA'])
+        archivo = open (rutaArchivo)
+        lines= archivo.readlines()
+        for l in lines:
+            atributo,valorAsociado,keys = l.split('..') #separa por los distintos campos de cada linea con ..
+            keys = keys.replace('\n', '') #para eliminar los saltos de linea
+            claves = keys.split(',') #las claves de cada categoria se separan por ,
+            categoriaNueva = cat.Categoria(atributo, valorAsociado, claves)
+            self.categorias.append(categoriaNueva)
         
-        self.categorias=[ECONOMIA,NATURALES,EXACTAS,HUMANIDADES,LENGUAS,ARTE,COMPUTACION,TURISMO,CONSTRUCCION,MECANICA,DOCENTE]
+        
         self.categoriasInvalidos= ['BACHILLER', 'TÉCNICO', 'BACHILLERATO']
         pass
     
@@ -94,7 +91,7 @@ class AdminModelo:
 if __name__ == '__main__':
     adminMod=AdminModelo()
     adminMod.cargarFiltros()
-    adminMod.cargarCategorias()
+    adminMod.cargarCategorias('categorias.txt')
     adminMod.cargarDatos('alumnos.xlsx',True,True)
     adminMod.cargarDatos('Finales.xlsx')
     adminMod.generarCluster('titulo_secundario','nota')
