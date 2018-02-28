@@ -50,15 +50,15 @@ class Ventana_principal:
     
     def botonArchivos(self):
         ruta=askopenfilename()
-        if(ruta is not None):
+        if(ruta is not None and ruta is not ''):
             self.adminInterfaz.cargarDatos(ruta)
     def botonCategorias(self):
         ruta=askopenfilename()
-        if(ruta is not None):
+        if(ruta is not None and ruta is not ''):
             self.adminInterfaz.cargarCategorias(ruta)
     def botonFiltros(self):
         ruta=askopenfilename()
-        if(ruta is not None):
+        if(ruta is not None and ruta is not ''):
             self.adminInterfaz.cargarFiltros(ruta)
         
         
