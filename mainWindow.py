@@ -50,7 +50,6 @@ def destroy_Ventana_principal():
 class Ventana_principal:
     adminInterfaz=None
     tablaActual = None
-    topLevel = None
     
     def botonArchivos(self):
         ruta=askopenfilename()
@@ -107,7 +106,6 @@ class Ventana_principal:
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
         
-        self.topLevel = top
         
         self.adminInterfaz=adminInterfaz #referencia al administrador de interfaz que se comunica con el admin de modelo para manejar la parte logica
 
@@ -120,7 +118,7 @@ class Ventana_principal:
         self.CargarCategorias.configure(foreground="#000000")
         self.CargarCategorias.configure(highlightbackground="#d9d9d9")
         self.CargarCategorias.configure(highlightcolor="black")
-        self._img1 = PhotoImage(file="./resources/categorías2.png")
+        self._img1 = PhotoImage(file="./resources/categorÃ­as2.png")
         self.CargarCategorias.configure(image=self._img1)
         self.CargarCategorias.configure(pady="0")
         self.CargarCategorias.configure(text='''categorias''')
