@@ -42,7 +42,7 @@ class AdminInterfaz:
         #cuando en la interfaz se preciona el boton de cargar el excel, se llama a este metodo que llama al metodo en adminModelo para cargar los datos
         print('adminInterfazCargarDatos')
         #aplica filtros y categorias a los archivos despues de cargar o no filtros
-        self.adminModelo.cargarDatos(ruta,aplicarFiltros=self.filtrosCargados,aplicarCategorias=self.categoriasCargadas)
+        return self.adminModelo.cargarDatos(ruta,aplicarFiltros=self.filtrosCargados,aplicarCategorias=self.categoriasCargadas)
       
     
     def cargarCategorias(self,ruta=None):

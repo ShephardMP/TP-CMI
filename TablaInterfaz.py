@@ -20,6 +20,8 @@ class TablaInterfaz:
     def __init__(self,topLevel, columnas, cantidadFilasVisibles = 10):
                      #aca en columns hay que poner ids de la cantidad de columnas que queramos -1
         self.tree = ttk.Treeview(topLevel, columns=(columnas), height = cantidadFilasVisibles)
+        for c in columnas:
+            self.tree.column(c, width = 100)
                                         
     def place(self, x=0, y=0, anchoPix = 600):
         self.tree.place(x = x, y = y, width = anchoPix)
