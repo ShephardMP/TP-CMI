@@ -17,11 +17,12 @@ class AdminModelo:
    
     filtros=None
     cargadorDefecto=None
-    categorias=[]
+    categorias=None
     categoriasInvalidos=None
     
     def __init__(self):
         self.datasets={}
+        self.categorias=[]
         self.cargadorDefecto=cd.CargadorDatosExcel() #esto puede cambiarse tranquilamente
        
     
@@ -48,9 +49,53 @@ class AdminModelo:
         #dataset.eliminarPorGrupo('fecha_ingreso','legajo',lambda x: x is not None and x==x.min())
 
     def cargarFiltros(self,rutaArchivo=None):
+        def decodificarFiltro(campo,cond,valor):
+            if(cond == '>'):
+                return fil.FiltroMayor(campo,valor)
+            elif (cond == '<'):
+                return fil.FiltroMenor(campo,valor)
+            elif (cond== "="):
+                return fil.FiltroIgual(campo,valor)
+            else:
+                raise ValueError('condicion no es un simbolo valido: < > =')
+            
         
-        self.filtros=fil.FiltroAND(fil.FiltroMayor('fecha_ingreso','2015-01-01'),fil.FiltroMenor('fecha_ingreso','2017-12-12'))
-        
+       # self.filtros=fil.FiltroAND(fil.FiltroMayor('fecha_ingreso','2015-01-01'),fil.FiltroMenor('fecha_ingreso','2017-12-12'))
+        arch=open(rutaArchivo) 
+        lineas=arch.readlines()
+        auxFiltro=None
+        auxFiltroSimples={} #esto es un diccionario/mapa, la posta es que en la linea que aparece en el archivo hay un filtro
+        #se puede dar la situacion que haya un NOT en la linea 2, y un filtro en la linea 3. luego por ser diccionario se puede conseguir facil ese filtro con la clave 3 y aplicarle el not
+        auxFiltroCompuestos=[]
+        NOT=[] #es una lista que tiene el index (-1) del filtro al que hay que hacerle not
+        AND=[]# esta es una lista con indices, si en la lista aparece un 1, hay que hacer un and entre el filtro en la linea - y el filtro en la linea 2
+        index=0
+        for l in lineas:
+            if(len(l)<5): #chequeo que sea algun AND NOT OR
+                
+                condCompuesta=l.split('\n')[0] #decodifico si es and or not
+                if(condCompuesta=='AND'):
+                    AND.append(index)
+                elif (condCompuesta=='NOT'):
+                    NOT.append(index)
+                    
+                
+            else:
+                campo,condicion,valor=l.split('..')
+                auxFiltroSimples[index]=decodificarFiltro(campo,condicion,valor)
+            index=index+1
+            
+        for x in NOT:
+            auxFiltroSimples[x+1]=fil.FiltroNOT(auxFiltroSimples[x+1])
+        for x in AND:
+            auxFiltroCompuestos.append(fil.FiltroAND(auxFiltroSimples[x-1],auxFiltroSimples[x+1]))
+        if(len(auxFiltroCompuestos)>1): #solo hacer OR si existe mas de un filtro AND
+            for x in range(0,len(auxFiltroCompuestos),2):
+                auxFiltro=fil.FiltroOR(auxFiltroCompuestos[x],auxFiltroCompuestos[x+1])
+        else:
+            auxFiltro=auxFiltroCompuestos[0]
+        self.filtros=auxFiltro
+        arch.close()
     
     def cargarCategorias(self,rutaArchivo):
         
@@ -66,7 +111,8 @@ class AdminModelo:
         
         
         self.categoriasInvalidos= ['BACHILLER', 'TÉCNICO', 'BACHILLERATO']
-        pass
+        archivo.close()
+        
     
     def generarCluster(self,columna1,columna2):
         #esto esta pensado para que cuando se llame para generar el cluster se llame con las columnas propiamente dichas

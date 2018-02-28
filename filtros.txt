@@ -1,0 +1,3 @@
+fecha_ingreso..>..2015-01-01
+AND
+fecha_ingreso..<..2017-12-31
