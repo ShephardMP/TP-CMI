@@ -45,7 +45,7 @@ class AdminModelo:
             self.datasets[rutaArchivo].eliminarValoresInvalidos( atr, 'nan')
             
         print(rutaArchivo)
-    
+        return aux
         #dataset.eliminarPorGrupo('fecha_ingreso','legajo',lambda x: x is not None and x==x.min())
 
     def cargarFiltros(self,rutaArchivo=None):
