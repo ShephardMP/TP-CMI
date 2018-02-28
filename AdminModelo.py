@@ -22,33 +22,23 @@ class AdminModelo:
     
     def __init__(self):
         self.datasets={}
-        self.categorias=[]
+        self.filtros={}
+        self.categorias={}
         self.cargadorDefecto=cd.CargadorDatosExcel() #esto puede cambiarse tranquilamente
        
     
-    def cargarDatos(self,rutaArchivo,aplicarFiltros=False,aplicarCategorias=False):
+    def cargarDatos(self,rutaArchivo):
         aux=ds.Dataset()
         aux.cargarDatos(self.cargadorDefecto, rutaArchivo)
         self.datasets[rutaArchivo]=aux
        
-        if(self.filtros is not None and aplicarFiltros is True):
-            self.datasets[rutaArchivo].filtrar(self.filtros)
-        if(self.categorias is not None and aplicarCategorias is True):
-            atr=self.categorias[0].getNombreAtributo() #por ejemplo 'titlo_secundario'
-            self.datasets[rutaArchivo].columnaToUpper(atr) #la categoria afecta a esto
-            for i,item in enumerate(self.categorias):   #tambien creo que se puede el elemento directo 
-                    self.datasets[rutaArchivo].reemplazarValores(atr,self.categorias[i].getKeys(), self.categorias[i].getValorAsociado())
-                    #HACE FALTA TRABAJAR SOBRE CATEGORIAS PARA AGREGAR VALORES INVALIDOS
-                    
-           
-            self.datasets[rutaArchivo].reemplazarValores( atr, self.categoriasInvalidos, 'nan')
-            self.datasets[rutaArchivo].eliminarValoresInvalidos( atr, 'nan')
+       
             
         print(rutaArchivo)
     
         #dataset.eliminarPorGrupo('fecha_ingreso','legajo',lambda x: x is not None and x==x.min())
 
-    def cargarFiltros(self,rutaArchivo=None):
+    def cargarFiltros(self,rutaArchivo=None,archivoDatos=None):
         def decodificarFiltro(campo,cond,valor):
             if(cond == '>'):
                 return fil.FiltroMayor(campo,valor)
@@ -94,24 +84,42 @@ class AdminModelo:
                 auxFiltro=fil.FiltroOR(auxFiltroCompuestos[x],auxFiltroCompuestos[x+1])
         else:
             auxFiltro=auxFiltroCompuestos[0]
-        self.filtros=auxFiltro
+        self.filtros[archivoDatos]=auxFiltro
         arch.close()
+        
+        self.datasets[archivoDatos].filtrar(self.filtros[archivoDatos])
+       
     
-    def cargarCategorias(self,rutaArchivo):
+    def cargarCategorias(self,rutaArchivo,archivoDatos=None):
         
         #hay que hacer una logica para trabajar sobre archivos
         archivo = open (rutaArchivo)
         lines= archivo.readlines()
+        if(len(lines)>1):
+            self.categorias[archivoDatos]=[]
         for l in lines:
             atributo,valorAsociado,keys = l.split('..') #separa por los distintos campos de cada linea con ..
             keys = keys.replace('\n', '') #para eliminar los saltos de linea
             claves = keys.split(',') #las claves de cada categoria se separan por ,
             categoriaNueva = cat.Categoria(atributo, valorAsociado, claves)
-            self.categorias.append(categoriaNueva)
+            self.categorias[archivoDatos].append(categoriaNueva)
         
-        
+        #HACE FALTA TRABAJAR SOBRE CATEGORIAS PARA AGREGAR VALORES INVALIDOS
+                    
         self.categoriasInvalidos= ['BACHILLER', 'TÉCNICO', 'BACHILLERATO']
         archivo.close()
+        
+        auxCategorias=self.categorias[archivoDatos] #obtengo las categorias asociadas a ese archivo
+        atr=auxCategorias[0].getNombreAtributo() #por ejemplo 'titlo_secundario'
+        self.datasets[archivoDatos].columnaToUpper(atr) #la categoria afecta a esto
+        for i,item in enumerate(auxCategorias):   #tambien creo que se puede el elemento directo 
+            self.datasets[archivoDatos].reemplazarValores(atr,auxCategorias[i].getKeys(), auxCategorias[i].getValorAsociado())
+ 
+        
+        self.datasets[archivoDatos].reemplazarValores( atr, self.categoriasInvalidos, 'nan')
+        self.datasets[archivoDatos].eliminarValoresInvalidos( atr, 'nan')
+        
+        
         
     
     def generarCluster(self,columna1,columna2):

@@ -11,8 +11,7 @@ class AdminInterfaz:
     
     #SE ESPERA QUE SEAN STRINGS CON EL PATH A LSO ARCHIVOS DE DATOS
     adminModelo=None
-    categoriasCargadas=False
-    filtrosCargados=False
+    
     def __init__(self,referenciaAdminModelo=None):
         self.adminModelo=referenciaAdminModelo
         mainWindow.vp_start_gui(self)
@@ -42,19 +41,19 @@ class AdminInterfaz:
         #cuando en la interfaz se preciona el boton de cargar el excel, se llama a este metodo que llama al metodo en adminModelo para cargar los datos
         print('adminInterfazCargarDatos')
         #aplica filtros y categorias a los archivos despues de cargar o no filtros
-        self.adminModelo.cargarDatos(ruta,aplicarFiltros=self.filtrosCargados,aplicarCategorias=self.categoriasCargadas)
+        self.adminModelo.cargarDatos(ruta)
       
     
-    def cargarCategorias(self,ruta=None):
-        self.adminModelo.cargarCategorias(ruta)
-        self.categoriasCargadas=True
+    def cargarCategorias(self,ruta=None,aArchivo=None):
+        self.adminModelo.cargarCategorias(ruta,aArchivo)
+       
         print('adminInterfazCargarCategorias')
         #parecido a lo de filtro, llamar a la logica de adminModelo
       
-    def cargarFiltros(self,ruta=None):
+    def cargarFiltros(self,ruta=None,,aArchivo=None):
         #parecido a lo de arriba, hay que definir un metodo en adminModelo que permita cargar los filtros
-        self.adminModelo.cargarFiltros(ruta)
-        self.filtrosCargados=True
+        self.adminModelo.cargarFiltros(ruta,aArchivo)
+        
         print('adminInterfazCargarFiltros')
         
     

@@ -47,19 +47,22 @@ def destroy_Ventana_principal():
 
 class Ventana_principal:
     adminInterfaz=None
-    
+    pestañaActiva=None
+    pestañas=None
     def botonArchivos(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
             self.adminInterfaz.cargarDatos(ruta)
+            self.pestañas.append(ruta)
     def botonCategorias(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
-            self.adminInterfaz.cargarCategorias(ruta)
+            self.adminInterfaz.cargarCategorias(ruta, pestañaActiva)
     def botonFiltros(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
-            self.adminInterfaz.cargarFiltros(ruta)
+            self.adminInterfaz.cargarFiltros(ruta, pestañaActiva)
+        
         
         
     def insertarToolTips(self):
@@ -80,10 +83,13 @@ class Ventana_principal:
         self.mostrarCluster.configure(command=self.adminInterfaz.mostrarCluster)
     def insertarCambios(self):
         #ESTE METODO GENERA CAMBIOS A LA INTERFAZ, POR EJEMPLO, LE DA A LOS BOTONES TOOLTIP Y LOS LIGA A OTRAS FUNCIONES
+        self.__inicializarPrivados__()
         self.insertarToolTips()
         self.insertarAccionesBotones()
+       
         
-    
+    def __inicializarPrivados__(self):
+        self.pestañas=[]
         
     def __init__(self, top=None,adminInterfaz=None):
         '''This class configures and populates the toplevel window.
