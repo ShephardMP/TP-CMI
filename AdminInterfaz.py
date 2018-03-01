@@ -54,7 +54,7 @@ class AdminInterfaz:
         print('adminInterfazCargarCategorias')
         #parecido a lo de filtro, llamar a la logica de adminModelo
       
-    def cargarFiltros(self,ruta=None,,aArchivo=None):
+    def cargarFiltros(self,ruta=None,aArchivo=None):
         #parecido a lo de arriba, hay que definir un metodo en adminModelo que permita cargar los filtros
         self.adminModelo.cargarFiltros(ruta,aArchivo)
         
