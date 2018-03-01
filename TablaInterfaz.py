@@ -32,11 +32,10 @@ class TablaInterfaz:
             self.tree.heading(numCol, text= nombres[x])
             
     def insertarFila(self, valores):
-        v0 = valores.pop(0)
-        self.tree.insert("", tk.END, text = v0, values = valores)
-        valores.insert(0, v0)
+        self.tree.insert("", tk.END, text = valores[0], values = valores[1:len(valores)])
         
     def cargarDataset(self, dataset):
         self.nombrarColumnas(dataset.nombresColumnas())
-        for i in range(0, dataset.cantidadFilas() - 1):
-            self.insertarFila(dataset.getFila(i))
+        dataframe = dataset.datos()
+        for fila in dataframe.itertuples():
+            self.insertarFila(fila[1:len(fila)])
