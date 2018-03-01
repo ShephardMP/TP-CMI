@@ -42,7 +42,7 @@ class AdminInterfaz:
         print('adminInterfazCargarDatos')
         #aplica filtros y categorias a los archivos despues de cargar o no filtros
 
-        self.adminModelo.cargarDatos(ruta)
+       
 
         return self.adminModelo.cargarDatos(ruta)
 
