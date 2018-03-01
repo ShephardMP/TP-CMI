@@ -5,6 +5,9 @@
 #    Feb 22, 2018 12:32:21 AM
 import sys
 import tooltip
+import os #para arreglar los problemas de path
+import Notebook
+      
 from tkinter.filedialog import askopenfilename
 
 try:
@@ -50,34 +53,65 @@ def destroy_Ventana_principal():
 class Ventana_principal:
     adminInterfaz=None
 
-    pesta�aActiva=None
-    pesta�as=None
-    def botonArchivos(self):
-        ruta=askopenfilename()
-        if(ruta is not None and ruta is not ''):
-            self.adminInterfaz.cargarDatos(ruta)
-            self.pesta�as.append(ruta)
-
+    tabActiva=None
+    tabs=None
     tablaActual = None
+    tablas=None
+    note=None
+    mapaRutas=None #va a servir para mostrar una version resumida en la tab pero pudiendo comunicarse con el adminModelo
     
+    def DibujarTabla(self,dataset):
+          self.tablaActual = TI.TablaInterfaz(None, dataset.nombresColumnas(), cantidadFilasVisibles= 20)
+          self.tablaActual.place(x=10, y=150, anchoPix= 960)
+          self.tablaActual.cargarDataset(dataset)
     def botonArchivos(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
             dataset = self.adminInterfaz.cargarDatos(ruta)
-            tablaActual = TI.TablaInterfaz(None, dataset.nombresColumnas(), cantidadFilasVisibles= 20)
-            tablaActual.place(x=10, y=150, anchoPix= 960)
-            tablaActual.cargarDataset(dataset)
+            #se agrega la tabla del dataset cargado
+            self.DibujarTabla(dataset)
+            self.tabs.append(ruta)
+            auxRuta=ruta.split("/")
+            auxRuta=auxRuta[len(auxRuta)-1] #obtengo lo ultimo del archivo
+            self.mapaRutas[auxRuta]=ruta
+            self.note.addTab(auxRuta)
+            self.note.seleccionarTab(auxRuta)
+            self.tabActiva=ruta
 
     def botonCategorias(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
-            self.adminInterfaz.cargarCategorias(ruta, pesta�aActiva)
+            self.adminInterfaz.cargarCategorias(ruta, self.tabActiva)
     def botonFiltros(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
-            self.adminInterfaz.cargarFiltros(ruta, pesta�aActiva)
+            self.adminInterfaz.cargarFiltros(ruta, self.tabActiva)
         
+            
+    def mostrarTablaPorTab(self,nombreTabla):
+        if(len(self.mapaRutas)>1):
+            #print(self.mapaRutas)
+            #print("Nombre de tabla", nombreTabla)
+            self.tabActiva=self.mapaRutas[nombreTabla]
+            self.DibujarTabla(self.adminInterfaz.obtenerDataset(self.tabActiva))
+            
         
+    def configurarVistaNotebook(self):
+        self.style.configure('TNotebook.Tab', background='#d9d9d9')
+        self.style.configure('TNotebook.Tab', foreground='#000000')
+        self.style.map('TNotebook.Tab', background=
+            [('selected', 'white'), ('active','#d5ffd8')])
+        
+        #esto le saca la linea punteada a la tab
+        self.style.layout("Tab",
+            [('Notebook.tab', {'sticky': 'nswe', 'children':
+                [('Notebook.padding', {'side': 'top', 'sticky': 'nswe', 'children':
+                    #[('Notebook.focus', {'side': 'top', 'sticky': 'nswe', 'children':
+                        [('Notebook.label', {'side': 'top', 'sticky': ''})],
+                    #})],
+                })],
+            })]
+            )
         
     def insertarToolTips(self):
         
@@ -100,10 +134,12 @@ class Ventana_principal:
         self.__inicializarPrivados__()
         self.insertarToolTips()
         self.insertarAccionesBotones()
+        self.configurarVistaNotebook()
        
         
     def __inicializarPrivados__(self):
-        self.pesta�as=[]
+        self.tabs=[]
+        self.mapaRutas={}
         
     def __init__(self, top=None,adminInterfaz=None):
         '''This class configures and populates the toplevel window.
@@ -113,13 +149,22 @@ class Ventana_principal:
         _compcolor = '#d9d9d9' # X11 color: 'gray85'
         _ana1color = '#d9d9d9' # X11 color: 'gray85' 
         _ana2color = '#d9d9d9' # X11 color: 'gray85' 
+        self.style = ttk.Style()
+        if sys.platform == "win32":
+            self.style.theme_use('winnative')
+        self.style.configure('.',background=_bgcolor)
+        self.style.configure('.',foreground=_fgcolor)
+        self.style.configure('.',font="TkDefaultFont")
+        self.style.map('.',background=
+            [('selected', _compcolor), ('active',_ana2color)])
         
         top.geometry("999x712+520+140")
         top.title("Ventana principal")
         top.configure(background="#d9d9d9")
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
-        
+        #evitar problemas de paths, usa os
+        THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
         
         self.adminInterfaz=adminInterfaz #referencia al administrador de interfaz que se comunica con el admin de modelo para manejar la parte logica
 
@@ -132,7 +177,7 @@ class Ventana_principal:
         self.CargarCategorias.configure(foreground="#000000")
         self.CargarCategorias.configure(highlightbackground="#d9d9d9")
         self.CargarCategorias.configure(highlightcolor="black")
-        self._img1 = PhotoImage(file="./resources/categorías2.png")
+        self._img1 = PhotoImage(file=os.path.join(THIS_FOLDER, 'resources/categorias2.png'))
         self.CargarCategorias.configure(image=self._img1)
         self.CargarCategorias.configure(pady="0")
         self.CargarCategorias.configure(text='''categorias''')
@@ -148,7 +193,7 @@ class Ventana_principal:
         self.CargarArchivo.configure(foreground="#000000")
         self.CargarArchivo.configure(highlightbackground="#d9d9d9")
         self.CargarArchivo.configure(highlightcolor="black")
-        self._img2 = PhotoImage(file="./resources/excel2.png")
+        self._img2 = PhotoImage(file=os.path.join(THIS_FOLDER,"./resources/excel2.png"))
         self.CargarArchivo.configure(image=self._img2)
         self.CargarArchivo.configure(pady="0")
         self.CargarArchivo.configure(text='''archivo''')
@@ -163,7 +208,7 @@ class Ventana_principal:
         self.cargarFiltros.configure(foreground="#000000")
         self.cargarFiltros.configure(highlightbackground="#d9d9d9")
         self.cargarFiltros.configure(highlightcolor="black")
-        self._img3 = PhotoImage(file="./resources/filtros3.png")
+        self._img3 = PhotoImage(file=os.path.join(THIS_FOLDER,"./resources/filtros3.png"))
         self.cargarFiltros.configure(image=self._img3)
         self.cargarFiltros.configure(pady="0")
         self.cargarFiltros.configure(text='''filtro''')
@@ -183,7 +228,8 @@ class Ventana_principal:
         
         self.insertarCambios()
 
-    
+        self.note=Notebook.Notebook(top,self)
+        
 if __name__ == '__main__':
     vp_start_gui()
 
