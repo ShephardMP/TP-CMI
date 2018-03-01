@@ -21,6 +21,8 @@ except ImportError:
 
 import mainWindow_support
 
+import TablaInterfaz as TI
+
 def vp_start_gui(adminInterfaz):
     '''Starting point when module is the main routine.'''
     global val, w, root
@@ -47,21 +49,33 @@ def destroy_Ventana_principal():
 
 class Ventana_principal:
     adminInterfaz=None
-    pestañaActiva=None
-    pestañas=None
+
+    pestaï¿½aActiva=None
+    pestaï¿½as=None
     def botonArchivos(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
             self.adminInterfaz.cargarDatos(ruta)
-            self.pestañas.append(ruta)
+            self.pestaï¿½as.append(ruta)
+
+    tablaActual = None
+    
+    def botonArchivos(self):
+        ruta=askopenfilename()
+        if(ruta is not None and ruta is not ''):
+            dataset = self.adminInterfaz.cargarDatos(ruta)
+            tablaActual = TI.TablaInterfaz(None, dataset.nombresColumnas(), cantidadFilasVisibles= 20)
+            tablaActual.place(x=10, y=150, anchoPix= 960)
+            tablaActual.cargarDataset(dataset)
+
     def botonCategorias(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
-            self.adminInterfaz.cargarCategorias(ruta, pestañaActiva)
+            self.adminInterfaz.cargarCategorias(ruta, pestaï¿½aActiva)
     def botonFiltros(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
-            self.adminInterfaz.cargarFiltros(ruta, pestañaActiva)
+            self.adminInterfaz.cargarFiltros(ruta, pestaï¿½aActiva)
         
         
         
@@ -89,7 +103,7 @@ class Ventana_principal:
        
         
     def __inicializarPrivados__(self):
-        self.pestañas=[]
+        self.pestaï¿½as=[]
         
     def __init__(self, top=None,adminInterfaz=None):
         '''This class configures and populates the toplevel window.
@@ -99,13 +113,14 @@ class Ventana_principal:
         _compcolor = '#d9d9d9' # X11 color: 'gray85'
         _ana1color = '#d9d9d9' # X11 color: 'gray85' 
         _ana2color = '#d9d9d9' # X11 color: 'gray85' 
-
+        
         top.geometry("999x712+520+140")
         top.title("Ventana principal")
         top.configure(background="#d9d9d9")
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
-
+        
+        
         self.adminInterfaz=adminInterfaz #referencia al administrador de interfaz que se comunica con el admin de modelo para manejar la parte logica
 
         self.CargarCategorias = Button(top)
@@ -117,7 +132,7 @@ class Ventana_principal:
         self.CargarCategorias.configure(foreground="#000000")
         self.CargarCategorias.configure(highlightbackground="#d9d9d9")
         self.CargarCategorias.configure(highlightcolor="black")
-        self._img1 = PhotoImage(file="./resources/categorías2.png")
+        self._img1 = PhotoImage(file="./resources/categorÃ­as2.png")
         self.CargarCategorias.configure(image=self._img1)
         self.CargarCategorias.configure(pady="0")
         self.CargarCategorias.configure(text='''categorias''')
