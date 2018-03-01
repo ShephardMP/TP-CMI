@@ -61,7 +61,8 @@ class AdminInterfaz:
         print('adminInterfazCargarFiltros')
         
     
-
+    def obtenerDataset(self,claveDataset):
+        return self.adminModelo.devolverDataset(claveDataset)
 
 if __name__ == '__main__':
     model=AdminModelo.AdminModelo()

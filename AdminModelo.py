@@ -142,6 +142,9 @@ class AdminModelo:
         newClust.generarCluster(dataCluster.toArray())
         
         
+    def devolverDataset(self,rutaClave):
+        return self.datasets[rutaClave]
+        
 if __name__ == '__main__':
     adminMod=AdminModelo()
     adminMod.cargarFiltros()
