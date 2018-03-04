@@ -18,8 +18,12 @@ class ClusterGenerator:
 "------------------------------------------------------------------------------------"
 "------------------------------------------------------------------------------------"
 from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
+import tkinter as tk
+import matplotlib.pyplot
+#matplotlib.use('TkAgg')
 
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 class ClusterKMeans(ClusterGenerator):
     kmeans=None
     
@@ -30,10 +34,23 @@ class ClusterKMeans(ClusterGenerator):
     def setParametros(self, numClusters=8, inicializacion='k-means++', initIteraciones=10):
         self.kmeans = KMeans(n_clusters=numClusters, init=inicializacion, n_init=initIteraciones)
         
-    def generarCluster(self, data): #Data deberia ser un array-like o 2D-array, cualquier cosa, pensar Data=numpy.random.rand(3,4)
+    def generarCluster(self, data,etiquetaX='',etiquetaY=''): #Data deberia ser un array-like o 2D-array, cualquier cosa, pensar Data=numpy.random.rand(3,4)
          
          #plt.scatter(data[:, 0], data[:, 1], s=50) 
          self.kmeans.fit(data)
          prediccion=self.kmeans.predict(data)
          
-         plt.scatter(data[:, 0], data[:, 1],c=prediccion, s=50)
+         fig,cluster=matplotlib.pyplot.subplots() #crea nueva figura, otra ventana para renderizar el plot, no funciona dentro del IDE spyder a menos
+         #que se se configure una opcion
+         cluster.scatter(data[:, 0], data[:, 1],c=prediccion, s=50)
+         
+         cluster.set(xlabel=etiquetaX, ylabel=etiquetaY)
+         aux=[x for x in range (1,11)]
+         matplotlib.pyplot.xticks(aux) #establece que el x vaya de 1 a 10 (lo que hay en aux)
+         matplotlib.pyplot.yticks(aux)
+         #plt.xticks(aux,etiquetasCategorias) mapea index del axis a las etiquetas de categorias
+         fig.show() #muestra la figura
+         
+        
+        
+         

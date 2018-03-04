@@ -6,6 +6,7 @@ Created on Fri Feb 23 21:35:15 2018
 """
 
 import mainWindow
+import VentanaSeleccion
 import AdminModelo
 class AdminInterfaz:
     
@@ -30,8 +31,23 @@ class AdminInterfaz:
         pass
     
     
-    def mostrarCluster(self, columna1='titulo_secundario',columna2='nota'):
-        self.adminModelo.generarCluster(columna1,columna2)
+    def mostrarCluster(self, nombreArchivos):
+        
+        mapArchivoYColumnas={}
+        opcionesElegidas={}
+        opciones=[x for x in nombreArchivos.keys()] #lista por comprension, tiene los nombres resumidos
+        for K in nombreArchivos:
+            #nombrearchivos[K] es la ruta ABSOLUTA del archivo, la idea es obtener
+            #las columnas del dataset para mostrar el nombre resumido del archivo y las columnas.
+            auxDataset=self.adminModelo.getDataset(nombreArchivos[K])
+            mapArchivoYColumnas[K]=auxDataset.nombresColumnas()
+    
+        VentanaSeleccion.vp_start_gui(mapArchivoYColumnas,opcionesElegidas)
+        
+        if(len(opcionesElegidas)<2):
+            raise ValueError('no se eligieron dos opciones para hacer clustering')
+        dataset=self.adminModelo.hacerMergeDatasets()
+        self.adminModelo.generarCluster(opcionesElegidas[opciones[0]],opcionesElegidas[opciones[1]],dataset)
         print ('end cluster')
         
     def mostrarArbol(self):
@@ -49,20 +65,22 @@ class AdminInterfaz:
       
     
     def cargarCategorias(self,ruta=None,aArchivo=None):
-        self.adminModelo.cargarCategorias(ruta,aArchivo)
-       
         print('adminInterfazCargarCategorias')
+        return self.adminModelo.cargarCategorias(ruta,aArchivo)
+       
+      
         #parecido a lo de filtro, llamar a la logica de adminModelo
       
     def cargarFiltros(self,ruta=None,aArchivo=None):
         #parecido a lo de arriba, hay que definir un metodo en adminModelo que permita cargar los filtros
-        self.adminModelo.cargarFiltros(ruta,aArchivo)
-        
         print('adminInterfazCargarFiltros')
+        return self.adminModelo.cargarFiltros(ruta,aArchivo)
+        
+      
         
     
     def obtenerDataset(self,claveDataset):
-        return self.adminModelo.devolverDataset(claveDataset)
+        return self.adminModelo.getDataset(claveDataset)
 
 if __name__ == '__main__':
     model=AdminModelo.AdminModelo()

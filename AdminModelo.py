@@ -19,13 +19,14 @@ class AdminModelo:
     cargadorDefecto=None
     categorias=None
     categoriasInvalidos=None
-    
+    merge=None
+    newCluster=None
     def __init__(self):
         self.datasets={}
         self.filtros={}
         self.categorias={}
         self.cargadorDefecto=cd.CargadorDatosExcel() #esto puede cambiarse tranquilamente
-       
+        self.newCluster=clustGen.ClusterKMeans()
     
     def cargarDatos(self,rutaArchivo):
         aux=ds.Dataset()
@@ -89,6 +90,7 @@ class AdminModelo:
         
         self.datasets[archivoDatos].filtrar(self.filtros[archivoDatos])
        
+        return self.datasets[archivoDatos] #para visualizar los datos cambiados
     
     def cargarCategorias(self,rutaArchivo,archivoDatos=None):
         
@@ -119,12 +121,34 @@ class AdminModelo:
         self.datasets[archivoDatos].reemplazarValores( atr, self.categoriasInvalidos, 'nan')
         self.datasets[archivoDatos].eliminarValoresInvalidos( atr, 'nan')
         
+        return self.datasets[archivoDatos] #agregado para que puedan verse los cambios
         
         
     
-    def generarCluster(self,columna1,columna2):
+    def generarCluster(self,columna1,columna2,dataframe=None):
         #esto esta pensado para que cuando se llame para generar el cluster se llame con las columnas propiamente dichas
+        if(dataframe is None):
+            if(self.merge is None):
+                dataframe=self.hacerMergeDatasets()
+            else:
+                dataframe=self.merge
+       
+        dataCluster = ds.Dataset()
+        #dataCluster.cargarDataframe(dataMerge.seleccionarColumnas(['titulo_secundario','nota']))
+        dataCluster.cargarDataframe(dataframe.seleccionarColumnas([columna1,columna2]))
         
+        self.newCluster.generarCluster(dataCluster.toArray(),columna1,columna2)
+        
+        
+    def getDataset(self,rutaClave):
+        return self.datasets[rutaClave]
+    
+    def getDatasets(self):
+        return self.datasets
+    
+    def hacerMergeDatasets(self):
+        if(len(self.datasets)<2):
+            raise ValueError('no se puede realizar merge de menos de un archivo')
         dataMerge=None
         counter=0
         for clave in self.datasets:
@@ -135,20 +159,21 @@ class AdminModelo:
             else:
                
                 dataMerge.mergeCon(self.datasets[clave])
-        dataCluster = ds.Dataset()
-        #dataCluster.cargarDataframe(dataMerge.seleccionarColumnas(['titulo_secundario','nota']))
-        dataCluster.cargarDataframe(dataMerge.seleccionarColumnas([columna1,columna2]))
-        newClust = clustGen.ClusterKMeans()
-        newClust.generarCluster(dataCluster.toArray())
         
+        self.merge=dataMerge
+        return dataMerge
+    
+    def getDatasetMerge(self):
+        if(self.merge is None):
+            raise ValueError('no hay merges en adminModelo')
+        return self.merge
         
-    def devolverDataset(self,rutaClave):
-        return self.datasets[rutaClave]
         
 if __name__ == '__main__':
     adminMod=AdminModelo()
-    adminMod.cargarFiltros()
-    adminMod.cargarCategorias('categorias.txt')
-    adminMod.cargarDatos('alumnos.xlsx',True,True)
+    adminMod.cargarDatos('alumnos.xlsx')
     adminMod.cargarDatos('Finales.xlsx')
-    adminMod.generarCluster('titulo_secundario','nota')
+    adminMod.cargarFiltros('filtros.txt','alumnos.xlsx')
+    adminMod.cargarCategorias('categorias.txt','alumnos.xlsx')
+   
+    adminMod.generarCluster('titulo_secundario','nota',adminMod.hacerMergeDatasets())
