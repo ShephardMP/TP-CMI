@@ -7,7 +7,10 @@ import sys
 import tooltip
 import os #para arreglar los problemas de path
 import Notebook
-      
+import mainWindow_support
+
+import TablaInterfaz as TI
+     
 from tkinter.filedialog import askopenfilename
 
 try:
@@ -22,9 +25,7 @@ except ImportError:
     import tkinter.ttk as ttk
     py3 = 1
 
-import mainWindow_support
 
-import TablaInterfaz as TI
 
 def vp_start_gui(adminInterfaz):
     '''Starting point when module is the main routine.'''
@@ -81,12 +82,16 @@ class Ventana_principal:
     def botonCategorias(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
-            self.adminInterfaz.cargarCategorias(ruta, self.tabActiva)
+            aux=self.adminInterfaz.cargarCategorias(ruta, self.tabActiva)
+            self.DibujarTabla(aux)
     def botonFiltros(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
-            self.adminInterfaz.cargarFiltros(ruta, self.tabActiva)
-        
+            aux =self.adminInterfaz.cargarFiltros(ruta, self.tabActiva)
+            self.DibujarTabla(aux)
+            
+    def botonCluster(self):
+        self.adminInterfaz.mostrarCluster(self.mapaRutas) #le mando los nombres resumidos y a que corresponden, el adminInterfaz debiera saber comunicarse con el modelo para obtener los dataset correspondiente
             
     def mostrarTablaPorTab(self,nombreTabla):
         if(len(self.mapaRutas)>1):
@@ -128,7 +133,7 @@ class Ventana_principal:
         self.CargarCategorias.configure(command=self.botonCategorias)
         self.cargarFiltros.configure(command=self.botonFiltros)
     
-        self.mostrarCluster.configure(command=self.adminInterfaz.mostrarCluster)
+        self.generarCluster.configure(command=self.botonCluster)
     def insertarCambios(self):
         #ESTE METODO GENERA CAMBIOS A LA INTERFAZ, POR EJEMPLO, LE DA A LOS BOTONES TOOLTIP Y LOS LIGA A OTRAS FUNCIONES
         self.__inicializarPrivados__()
@@ -214,17 +219,30 @@ class Ventana_principal:
         self.cargarFiltros.configure(text='''filtro''')
 
 
-        self.mostrarCluster = Button(top)
-        self.mostrarCluster.place(relx=0.58, rely=0.62, height=24, width=88)
-        self.mostrarCluster.configure(activebackground="#d9d9d9")
-        self.mostrarCluster.configure(activeforeground="#000000")
-        self.mostrarCluster.configure(background="#d9d9d9")
-        self.mostrarCluster.configure(disabledforeground="#a3a3a3")
-        self.mostrarCluster.configure(foreground="#000000")
-        self.mostrarCluster.configure(highlightbackground="#d9d9d9")
-        self.mostrarCluster.configure(highlightcolor="black")
-        self.mostrarCluster.configure(pady="0")
-        self.mostrarCluster.configure(text='''mostrarCluster''')
+        self.generarCluster = Button(top)
+        self.generarCluster.place(relx=0.834, rely=0.84, height=104, width=137)
+        self.generarCluster.configure(activebackground="#d9d9d9")
+        self.generarCluster.configure(activeforeground="#000000")
+        self.generarCluster.configure(background="#d9d9d9")
+        self.generarCluster.configure(disabledforeground="#a3a3a3")
+        self.generarCluster.configure(foreground="#000000")
+        self.generarCluster.configure(highlightbackground="#d9d9d9")
+        self.generarCluster.configure(highlightcolor="black")
+        self.generarCluster.configure(pady="0")
+        self.generarCluster.configure(text='''Ver Cluster''')
+        self.generarCluster.configure(width=137)
+
+        self.generarArbol = Button(top)
+        self.generarArbol.place(relx=0.65, rely=0.84, height=104, width=137)
+        self.generarArbol.configure(activebackground="#d9d9d9")
+        self.generarArbol.configure(activeforeground="#000000")
+        self.generarArbol.configure(background="#d9d9d9")
+        self.generarArbol.configure(disabledforeground="#a3a3a3")
+        self.generarArbol.configure(foreground="#000000")
+        self.generarArbol.configure(highlightbackground="#d9d9d9")
+        self.generarArbol.configure(highlightcolor="black")
+        self.generarArbol.configure(pady="0")
+        self.generarArbol.configure(text='''Ver Arbol''')
         
         self.insertarCambios()
 
