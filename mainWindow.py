@@ -65,15 +65,18 @@ class Ventana_principal:
           self.tablaActual = TI.TablaInterfaz(None, dataset.nombresColumnas(), cantidadFilasVisibles= 20)
           self.tablaActual.place(x=10, y=150, anchoPix= 960)
           self.tablaActual.cargarDataset(dataset)
+          return self.tablaActual
+      
     def botonArchivos(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
             dataset = self.adminInterfaz.cargarDatos(ruta)
             #se agrega la tabla del dataset cargado
-            self.DibujarTabla(dataset)
+            tablaDibujada = self.DibujarTabla(dataset)
             self.tabs.append(ruta)
             auxRuta=ruta.split("/")
             auxRuta=auxRuta[len(auxRuta)-1] #obtengo lo ultimo del archivo
+            self.tablas.append([auxRuta,tablaDibujada]) #se guarda la tabla, para luego no tener que redibujar si se cambia la tab
             self.mapaRutas[auxRuta]=ruta
             self.note.addTab(auxRuta)
             self.note.seleccionarTab(auxRuta)
@@ -95,10 +98,12 @@ class Ventana_principal:
             
     def mostrarTablaPorTab(self,nombreTabla):
         if(len(self.mapaRutas)>1):
-            #print(self.mapaRutas)
-            #print("Nombre de tabla", nombreTabla)
             self.tabActiva=self.mapaRutas[nombreTabla]
-            self.DibujarTabla(self.adminInterfaz.obtenerDataset(self.tabActiva))
+            for tabla in self.tablas:
+                if tabla[0] != nombreTabla:
+                    tabla[1].place(x=10000, y=150, anchoPix= 960)
+                else:
+                    tabla[1].place(x=10, y=150, anchoPix= 960)
             
         
     def configurarVistaNotebook(self):
@@ -182,7 +187,7 @@ class Ventana_principal:
         self.CargarCategorias.configure(foreground="#000000")
         self.CargarCategorias.configure(highlightbackground="#d9d9d9")
         self.CargarCategorias.configure(highlightcolor="black")
-        self._img1 = PhotoImage(file=os.path.join(THIS_FOLDER, 'resources/categorias2.png'))
+        self._img1 = PhotoImage(file=os.path.join(THIS_FOLDER, 'resources/categorías2.png'))
         self.CargarCategorias.configure(image=self._img1)
         self.CargarCategorias.configure(pady="0")
         self.CargarCategorias.configure(text='''categorias''')
@@ -247,6 +252,8 @@ class Ventana_principal:
         self.insertarCambios()
 
         self.note=Notebook.Notebook(top,self)
+        
+        self.tablas = []
         
 if __name__ == '__main__':
     vp_start_gui()
