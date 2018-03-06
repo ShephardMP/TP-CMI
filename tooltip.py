@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Feb 21 19:44:12 2018
-ToolTip class proporcionado por http://www.voidspace.org.uk/python/weblog/arch_d7_2006_07_01.shtml
-con modificaciones de @Mauro
-"""
+
 
 from tkinter import *
 
