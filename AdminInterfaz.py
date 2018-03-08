@@ -31,23 +31,24 @@ class AdminInterfaz:
         pass
     
     
-    def mostrarCluster(self, nombreArchivos):
+    def abrirVentanaCluster(self, nombreArchivos):
         
         mapArchivoYColumnas={}
-        opcionesElegidas={}
-        opciones=[x for x in nombreArchivos.keys()] #lista por comprension, tiene los nombres resumidos
+        self.opcionesElegidas={}
+        self.opciones=[x for x in nombreArchivos.keys()] #lista por comprension, tiene los nombres resumidos
         for K in nombreArchivos:
             #nombrearchivos[K] es la ruta ABSOLUTA del archivo, la idea es obtener
             #las columnas del dataset para mostrar el nombre resumido del archivo y las columnas.
             auxDataset=self.adminModelo.getDataset(nombreArchivos[K])
             mapArchivoYColumnas[K]=auxDataset.nombresColumnas()
     
-        VentanaSeleccion.vp_start_gui(mapArchivoYColumnas,opcionesElegidas)
+        VentanaSeleccion.vp_start_gui(self, mapArchivoYColumnas,self.opcionesElegidas)
         
-        if(len(opcionesElegidas)<2):
+    def mostrarCluster(self):
+        if(len(self.opcionesElegidas)<2):
             raise ValueError('no se eligieron dos opciones para hacer clustering')
         dataset=self.adminModelo.hacerMergeDatasets()
-        self.adminModelo.generarCluster(opcionesElegidas[opciones[0]],opcionesElegidas[opciones[1]],dataset)
+        self.adminModelo.generarCluster(self.opcionesElegidas[self.opciones[0]],self.opcionesElegidas[self.opciones[1]],dataset)
         print ('end cluster')
         
     def mostrarArbol(self):

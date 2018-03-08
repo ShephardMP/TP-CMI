@@ -19,12 +19,13 @@ except ImportError:
 
 import VentanaSeleccion_support
 
-def vp_start_gui(mapaLxC=None,mapaResult=None):
+
+def vp_start_gui(Admin, mapaLxC=None,mapaResult=None):
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = Tk()
     VentanaSeleccion_support.set_Tk_var()
-    top = VentanaSeleccion (root,mapaLxC,mapaResult)
+    top = VentanaSeleccion (root, Admin, mapaLxC, mapaResult)
     VentanaSeleccion_support.init(root, top)
     root.mainloop()
 
@@ -49,7 +50,7 @@ class VentanaSeleccion:
     #genera una interfaz con indicadores y opciones y devuelve las opciones elegidas en mapaElecciones, se debe proporcionar el mapa de labels y las opciones
     #El maximo que soporta son 5 labels, further work is requiered.
     
-    
+    admin = None
     mapElecciones=None
     resultados=None
     top=None
@@ -59,12 +60,13 @@ class VentanaSeleccion:
     def aceptarOpciones(self):
         for K in self.mapElecciones:
                 self.resultados[K]=self.mapElecciones[K].get() #mapElecciones en la misma clave que es un texto debiera ser un combobox con una opcion seleccionada
+        self.admin.mostrarCluster()
         self.cerrar()
     def insertarAccionesBotones(self):
         self.aceptar.configure(command=self.aceptarOpciones)
         self.cancelar.configure(command=self.cerrar)
         
-    def __init__(self, top=None,mapaLabelsXContenido=None, resultados=None):
+    def __init__(self, top=None,AdminInterfaz = None, mapaLabelsXContenido=None, resultados=None):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -122,6 +124,7 @@ class VentanaSeleccion:
         self.mapElecciones={} #label x combobox
         self.resultados=resultados
         self.top=top
+        self.admin = AdminInterfaz
         
         if(mapaLabelsXContenido is not None):
             for K in mapaLabelsXContenido:
