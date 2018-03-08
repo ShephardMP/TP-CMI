@@ -94,7 +94,7 @@ class Ventana_principal:
             self.DibujarTabla(aux)
             
     def botonCluster(self):
-        self.adminInterfaz.mostrarCluster(self.mapaRutas) #le mando los nombres resumidos y a que corresponden, el adminInterfaz debiera saber comunicarse con el modelo para obtener los dataset correspondiente
+        self.adminInterfaz.abrirVentanaCluster(self.mapaRutas) #le mando los nombres resumidos y a que corresponden, el adminInterfaz debiera saber comunicarse con el modelo para obtener los dataset correspondiente
             
     def mostrarTablaPorTab(self,nombreTabla):
         if(len(self.mapaRutas)>1):
