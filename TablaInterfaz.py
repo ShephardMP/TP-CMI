@@ -15,7 +15,6 @@ except ImportError:
 import tkinter as tk
 
 class TablaInterfaz:
-    top = None
     tree = None
     scrollbarX = None
     scrollbarY = None
