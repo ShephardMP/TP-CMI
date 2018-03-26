@@ -6,13 +6,15 @@ Created on Wed Feb 21 23:46:25 2018
 """
 
 import pandas as pandas #biblioteca para trabajar con data frames
-
+from pandas.api.types import is_string_dtype
+from pandas.api.types import is_numeric_dtype
 class Dataset:
     ds = []
 
     def cargarDatos(self, cargadorDatos, nombreArchivo): #Dado un cargador de datos que devuelva un Dataframe y un archivo, lo guarda como nuevo dataset
         self.ds = cargadorDatos.cargarArchivo(nombreArchivo)
-
+        
+  
 
     def cargarDataframe(self, dataframe): #Carga el dataframe enviado como parámetro
         self.ds = dataframe
@@ -21,7 +23,11 @@ class Dataset:
     def datos(self): #Retorna el Dataframe
         return self.ds
 
-
+    def getCopia(self):
+        out= Dataset()
+        out.cargarDataframe(self.ds.copy(deep=True))
+        return out
+    
     def mergeCon(self, otroDataset, clave=None, forma='inner'):
         self.ds = self.getMerge(otroDataset, clave, forma).datos()
 
@@ -84,3 +90,10 @@ class Dataset:
     
     def cantidadFilas(self):
         return len(self.ds.index)
+    
+    def cambiarColumnaAString(self,columna):
+        self.ds[columna]= self.ds[columna].apply(str)
+    
+    def columnaNumerica(self,columna):
+        return is_numeric_dtype(self.ds[columna])
+        
