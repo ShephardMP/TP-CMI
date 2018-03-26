@@ -27,6 +27,7 @@ class AdminModelo:
         self.categorias={}
         self.cargadorDefecto=cd.CargadorDatosExcel() #esto puede cambiarse tranquilamente
         self.newCluster=clustGen.ClusterKMeans()
+        self.categoriasInvalidos={}
 
     def cargarDatos(self,rutaArchivo):
         aux=ds.Dataset()
@@ -40,12 +41,19 @@ class AdminModelo:
         #dataset.eliminarPorGrupo('fecha_ingreso','legajo',lambda x: x is not None and x==x.min())
 
     def cargarFiltros(self,rutaArchivo=None,archivoDatos=None):
+        
         def decodificarFiltro(campo,cond,valor):
+            #self.datasets[archivoDatos].cambiarColumnaAString(campo) #para homogeneizar los tipos de datos
+            print ("TIPO",self.datasets[archivoDatos].columnaNumerica(campo))
+            if(self.datasets[archivoDatos].columnaNumerica(campo)):
+                valor=int(valor)
+            else:
+                valor=str(valor)
             if(cond == '>'):
                 return fil.FiltroMayor(campo,valor)
             elif (cond == '<'):
                 return fil.FiltroMenor(campo,valor)
-            elif (cond== "="):
+            elif (cond== '='):
                 return fil.FiltroIgual(campo,valor)
             else:
                 raise ValueError('condicion no es un simbolo valido: < > =')
@@ -61,6 +69,8 @@ class AdminModelo:
         NOT=[] #es una lista que tiene el index (-1) del filtro al que hay que hacerle not
         AND=[]# esta es una lista con indices, si en la lista aparece un 1, hay que hacer un and entre el filtro en la linea - y el filtro en la linea 2
         index=0
+        if(archivoDatos not in self.filtros):
+            self.filtros[archivoDatos]=[]
         for l in lineas:
             if(len(l)<5): #chequeo que sea algun AND NOT OR
 
@@ -84,8 +94,15 @@ class AdminModelo:
             for x in range(0,len(auxFiltroCompuestos),2):
                 auxFiltro=fil.FiltroOR(auxFiltroCompuestos[x],auxFiltroCompuestos[x+1])
         else:
-            auxFiltro=auxFiltroCompuestos[0]
+            if(len(auxFiltroCompuestos)==1):
+                auxFiltro=auxFiltroCompuestos[0]
+            else:
+                auxFiltro=list(auxFiltroSimples.values())[0] #values retorna dict_values, que es una view, no una lista, por lo que hay que hacer la ista con list()
+                
+        
         self.filtros[archivoDatos]=auxFiltro
+       
+            
         arch.close()
 
         self.datasets[archivoDatos].filtrar(self.filtros[archivoDatos])
@@ -94,32 +111,51 @@ class AdminModelo:
 
     def cargarCategorias(self,rutaArchivo,archivoDatos=None):
 
+        nuevosInvalidos=False
         #hay que hacer una logica para trabajar sobre archivos
-        archivo = open (rutaArchivo)
-        lines= archivo.readlines()
-        if(len(lines)>1):
+        archivo = open(rutaArchivo)
+        if (archivoDatos not in self.categorias):
             self.categorias[archivoDatos]=[]
-        for l in lines:
-            atributo,valorAsociado,keys = l.split('..') #separa por los distintos campos de cada linea con ..
+            self.categoriasInvalidos[archivoDatos]=[]
+        
+            
+        while True:
+            lines = archivo.readline()
+           
+            #LEE LA SIGUIENTE LINEA, ESTA FORMA PERMITE UN PROCESAMIENTO MAS RAPIDO
+            #NO HAY QUE LEER TODO EL ARCHIVO DE UNA
+            if not lines:
+                break
+            
+            atributo,valorAsociado,keys = lines.split('..') #separa por los distintos campos de cada linea con ..
             keys = keys.replace('\n', '') #para eliminar los saltos de linea
             claves = keys.split(',') #las claves de cada categoria se separan por ,
-            categoriaNueva = cat.Categoria(atributo, valorAsociado, claves)
-            self.categorias[archivoDatos].append(categoriaNueva)
+            if (valorAsociado == 'invalid'):
+                nuevosInvalidos=True
+                for c in claves:
+                    self.categoriasInvalidos[archivoDatos].append(c)
+                    
+            else:
+
+                categoriaNueva = cat.Categoria(atributo, valorAsociado, claves)
+                self.categorias[archivoDatos].append(categoriaNueva)
+                
 
         #HACE FALTA TRABAJAR SOBRE CATEGORIAS PARA AGREGAR VALORES INVALIDOS
 
-        self.categoriasInvalidos= ['BACHILLER', 'TÉCNICO', 'BACHILLERATO']
+        #self.categoriasInvalidos[archivoDatos]= ['BACHILLER', 'TÉCNICO', 'BACHILLERATO']
+   
         archivo.close()
 
         auxCategorias=self.categorias[archivoDatos] #obtengo las categorias asociadas a ese archivo
-        atr=auxCategorias[0].getNombreAtributo() #por ejemplo 'titlo_secundario'
+        atr=auxCategorias[-1].getNombreAtributo() #por ejemplo 'titlo_secundario', esto tomo siempre el ultimo, asi que guarda de mezclar categorias en un mismo archivo
         self.datasets[archivoDatos].columnaToUpper(atr) #la categoria afecta a esto
         for i,item in enumerate(auxCategorias):   #tambien creo que se puede el elemento directo
             self.datasets[archivoDatos].reemplazarValores(atr,auxCategorias[i].getKeys(), auxCategorias[i].getValorAsociado())
 
-
-        self.datasets[archivoDatos].reemplazarValores( atr, self.categoriasInvalidos, 'nan')
-        self.datasets[archivoDatos].eliminarValoresInvalidos( atr, 'nan')
+        if(nuevosInvalidos==True):
+            self.datasets[archivoDatos].reemplazarValores(atr, self.categoriasInvalidos[archivoDatos], 'nan')
+            self.datasets[archivoDatos].eliminarValoresInvalidos( atr, 'nan')
 
         return self.datasets[archivoDatos] #agregado para que puedan verse los cambios
 
@@ -155,7 +191,7 @@ class AdminModelo:
         for clave in self.datasets:
             if(counter == 0):
                 #necesito el primer datasets para poder ir uniendo con los demas
-                dataMerge=self.datasets[clave]
+                dataMerge=self.datasets[clave].getCopia()
                 counter=counter+1
             else:
 
