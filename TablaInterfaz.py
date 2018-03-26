@@ -33,7 +33,7 @@ class TablaInterfaz:
 
     def place(self, x=0, y=0, anchoPix = 600):
         self.tree.place(x = x, y = y, width = anchoPix)
-        self.scrollbarX.place(x=x, y = self.alturaPix + y, width = anchoPix); #este 425 habría que calcularlo de alguna manera a partir de la cantidad de cantidadFilasVisibles
+        self.scrollbarX.place(x=x, y = self.alturaPix + y, width = anchoPix); 
         self.scrollbarY.place(x = x+anchoPix, y = y, height = self.alturaPix);
 
     def nombrarColumnas(self, nombres):
