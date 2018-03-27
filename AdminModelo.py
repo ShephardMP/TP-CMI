@@ -45,16 +45,17 @@ class AdminModelo:
         def decodificarFiltro(campo,cond,valor):
             #self.datasets[archivoDatos].cambiarColumnaAString(campo) #para homogeneizar los tipos de datos
             print ("TIPO",self.datasets[archivoDatos].columnaNumerica(campo))
+            valorInstanciado=None
             if(self.datasets[archivoDatos].columnaNumerica(campo)):
-                valor=int(valor)
+                valorInstanciado=int(valor)
             else:
-                valor=str(valor)
+                valorInstanciado=str(valor)
             if(cond == '>'):
-                return fil.FiltroMayor(campo,valor)
+                return fil.FiltroMayor(campo,valorInstanciado)
             elif (cond == '<'):
-                return fil.FiltroMenor(campo,valor)
+                return fil.FiltroMenor(campo,valorInstanciado)
             elif (cond== '='):
-                return fil.FiltroIgual(campo,valor)
+                return fil.FiltroIgual(campo,valorInstanciado)
             else:
                 raise ValueError('condicion no es un simbolo valido: < > =')
 
@@ -173,7 +174,7 @@ class AdminModelo:
         dataCluster = ds.Dataset()
         #dataCluster.cargarDataframe(dataMerge.seleccionarColumnas(['titulo_secundario','nota']))
         dataCluster.cargarDataframe(dataframe.seleccionarColumnas([columna1,columna2]))
-
+        dataCluster.sacarNaN(0,'any') #por fila, y si algun elemento es nan
         self.newCluster.generarCluster(dataCluster.toArray(),columna1,columna2)
 
 
@@ -205,6 +206,12 @@ class AdminModelo:
             raise ValueError('no hay merges en adminModelo')
         return self.merge
 
+    def removeDataset(self,rutaClave):
+        #es necesario limpiar la entrada del dataset y los filtros y categorias asociados
+        self.datasets.pop(rutaClave)
+        self.filtros.pop(rutaClave)
+        self.categorias.pop(rutaClave)
+        self.categoriasInvalidas.pop(rutaClave)
 
 if __name__ == '__main__':
     adminMod=AdminModelo()

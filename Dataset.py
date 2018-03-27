@@ -6,6 +6,7 @@ Created on Wed Feb 21 23:46:25 2018
 """
 
 import pandas as pandas #biblioteca para trabajar con data frames
+
 from pandas.api.types import is_string_dtype
 from pandas.api.types import is_numeric_dtype
 class Dataset:
@@ -91,9 +92,24 @@ class Dataset:
     def cantidadFilas(self):
         return len(self.ds.index)
     
+    def sacarNaN(self,axis=0,how='any'): 
+        #axis =0 es filas, how puede ser any o all
+        self.ds=self.ds.dropna(axis,how)
+    
     def cambiarColumnaAString(self,columna):
         self.ds[columna]= self.ds[columna].apply(str)
     
     def columnaNumerica(self,columna):
         return is_numeric_dtype(self.ds[columna])
+    
+    
         
+if __name__ == '__main__':
+    import numpy as np
+    df=Dataset()
+    df.cargarDataframe(pandas.DataFrame([[np.nan, 2, np.nan, 0], [3, 4, np.nan, 1],
+                   [np.nan, np.nan, np.nan, 5]],
+                  columns=list('ABCD')))
+    print(df.toArray(),'\n')
+    df.sacarNaN(1)
+    print(df.toArray())

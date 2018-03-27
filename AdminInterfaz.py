@@ -8,6 +8,7 @@ Created on Fri Feb 23 21:35:15 2018
 import mainWindow
 import VentanaSeleccion
 import AdminModelo
+import Dataset as ds
 class AdminInterfaz:
 
     #SE ESPERA QUE SEAN STRINGS CON EL PATH A LSO ARCHIVOS DE DATOS
@@ -84,6 +85,14 @@ class AdminInterfaz:
     def obtenerDataset(self,claveDataset):
         return self.adminModelo.getDataset(claveDataset)
 
+    def __test__(self):
+        dataframe=self.adminModelo.hacerMergeDatasets()
+        
+        dataCluster = ds.Dataset()
+        #dataCluster.cargarDataframe(dataMerge.seleccionarColumnas(['titulo_secundario','nota']))
+        dataCluster.cargarDataframe(dataframe.seleccionarColumnas(["titulo_secundario","nota"]))
+        return dataCluster
+    
 if __name__ == '__main__':
     model=AdminModelo.AdminModelo()
     admin= AdminInterfaz(model)

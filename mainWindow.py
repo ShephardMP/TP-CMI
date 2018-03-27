@@ -96,6 +96,8 @@ class Ventana_principal:
     def botonCluster(self):
         self.adminInterfaz.abrirVentanaCluster(self.mapaRutas) #le mando los nombres resumidos y a que corresponden, el adminInterfaz debiera saber comunicarse con el modelo para obtener los dataset correspondiente
 
+    def botonArbol(self):
+        self.DibujarTabla(self.adminInterfaz.__test__())
     def mostrarTablaPorTab(self,nombreTabla):
         if(len(self.mapaRutas)>1):
             self.tabActiva=self.mapaRutas[nombreTabla]
@@ -137,7 +139,7 @@ class Ventana_principal:
         self.CargarArchivo.configure(command=self.botonArchivos)
         self.CargarCategorias.configure(command=self.botonCategorias)
         self.cargarFiltros.configure(command=self.botonFiltros)
-
+        self.generarArbol.configure(command=self.botonArbol)
         self.generarCluster.configure(command=self.botonCluster)
     def insertarCambios(self):
         #ESTE METODO GENERA CAMBIOS A LA INTERFAZ, POR EJEMPLO, LE DA A LOS BOTONES TOOLTIP Y LOS LIGA A OTRAS FUNCIONES
