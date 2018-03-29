@@ -20,21 +20,25 @@ class TablaInterfaz:
     scrollbarY = None
     alturaPix = None
 
-    def __init__(self,topLevel, columnas, cantidadFilasVisibles = 10):
+    def __init__(self,topLevel, columnas, cantidadFilasVisibles = 10, scrollbarHorizontal = True, scrollbarVertical = True):
                      #aca en columns hay que poner ids de la cantidad de columnas que queramos -1
         self.tree = ttk.Treeview(topLevel, columns=(columnas), height = cantidadFilasVisibles)
         self.alturaPix = 25 + cantidadFilasVisibles * 20;
         for c in columnas:
             self.tree.column(c, width = 100)
-        self.scrollbarX = ttk.Scrollbar(topLevel, orient="horizontal", command=self.tree.xview)
-        self.scrollbarY = ttk.Scrollbar(topLevel, orient="vertical", command=self.tree.yview)
-        self.tree.configure(xscrollcommand=self.scrollbarX.set)
-        self.tree.configure(yscrollcommand=self.scrollbarY.set)
+        if (scrollbarHorizontal):
+            self.scrollbarX = ttk.Scrollbar(topLevel, orient="horizontal", command=self.tree.xview)
+            self.tree.configure(xscrollcommand=self.scrollbarX.set)
+        if (scrollbarVertical):
+            self.scrollbarY = ttk.Scrollbar(topLevel, orient="vertical", command=self.tree.yview)
+            self.tree.configure(yscrollcommand=self.scrollbarY.set)
 
     def place(self, x=0, y=0, anchoPix = 600):
         self.tree.place(x = x, y = y, width = anchoPix)
-        self.scrollbarX.place(x=x, y = self.alturaPix + y, width = anchoPix); 
-        self.scrollbarY.place(x = x+anchoPix, y = y, height = self.alturaPix);
+        if (self.scrollbarX != None):
+            self.scrollbarX.place(x=x, y = self.alturaPix + y, width = anchoPix);
+        if (self.scrollbarY != None):
+            self.scrollbarY.place(x = x+anchoPix, y = y, height = self.alturaPix);
 
     def nombrarColumnas(self, nombres):
         for x in range(0, len(nombres)):
