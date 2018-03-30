@@ -60,8 +60,7 @@ class VentanaSeleccion:
     def aceptarOpciones(self):
         for K in self.mapElecciones:
                 self.resultados[K]=self.mapElecciones[K].get() #mapElecciones en la misma clave que es un texto debiera ser un combobox con una opcion seleccionada
-        self.adminInter.mostrarCluster(cantClusters = int(self.comboCantClusters.get()))
-        self.cerrar()
+        self.adminInter.configurarCluster(self, cantClusters = int(self.comboCantClusters.get()))
 
     def insertarAccionesBotones(self):
         self.aceptar.configure(command=self.aceptarOpciones)
