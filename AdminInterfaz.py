@@ -8,6 +8,7 @@ Created on Fri Feb 23 21:35:15 2018
 import mainWindow
 import VentanaSeleccion
 import AdminModelo
+import VentanaMerge
 import Dataset as ds
 class AdminInterfaz:
 
@@ -34,24 +35,38 @@ class AdminInterfaz:
 
     def abrirVentanaCluster(self, nombreArchivos):
 
-        mapArchivoYColumnas={}
+        self.mapArchivoYColumnas={}
         self.opcionesElegidas={}
         self.opciones=[x for x in nombreArchivos.keys()] #lista por comprension, tiene los nombres resumidos
         for K in nombreArchivos:
             #nombrearchivos[K] es la ruta ABSOLUTA del archivo, la idea es obtener
             #las columnas del dataset para mostrar el nombre resumido del archivo y las columnas.
             auxDataset=self.adminModelo.getDataset(nombreArchivos[K])
-            mapArchivoYColumnas[K]=auxDataset.nombresColumnas()
+            self.mapArchivoYColumnas[K]=auxDataset.nombresColumnas()
 
-        VentanaSeleccion.vp_start_gui(self, mapArchivoYColumnas,self.opcionesElegidas)
+        VentanaSeleccion.vp_start_gui(self, self.mapArchivoYColumnas,self.opcionesElegidas)
 
-    def mostrarCluster(self, cantClusters = 4):
+
+
+
+    def configurarCluster(self, ventanaSeleccion, cantClusters = 4):
+        ventanaSeleccion.cerrar()
         if(len(self.opcionesElegidas)<2):
             raise ValueError('no se eligieron dos opciones para hacer clustering')
-        dataset=self.adminModelo.hacerMergeDatasets()
         self.adminModelo.configurarCluster(cantidadClusters = cantClusters)
+        #se abre la ventana que configura el merge del cluster
+        VentanaMerge.vp_start_gui(self, self.mapArchivoYColumnas)
+
+
+
+
+    def mostrarCluster(self, datosMerge):
+        dataset = self.adminModelo.hacerMergeDatasets(datosMerge)
         self.adminModelo.generarCluster(self.opcionesElegidas[self.opciones[0]],self.opcionesElegidas[self.opciones[1]],dataset)
         print ('end cluster')
+
+
+
 
     def mostrarArbol(self):
         pass
@@ -87,12 +102,12 @@ class AdminInterfaz:
 
     def __test__(self):
         dataframe=self.adminModelo.hacerMergeDatasets()
-        
+
         dataCluster = ds.Dataset()
         #dataCluster.cargarDataframe(dataMerge.seleccionarColumnas(['titulo_secundario','nota']))
         dataCluster.cargarDataframe(dataframe.seleccionarColumnas(["titulo_secundario","nota"]))
         return dataCluster
-    
+
 if __name__ == '__main__':
     model=AdminModelo.AdminModelo()
     admin= AdminInterfaz(model)

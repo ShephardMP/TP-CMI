@@ -41,7 +41,7 @@ class AdminModelo:
         #dataset.eliminarPorGrupo('fecha_ingreso','legajo',lambda x: x is not None and x==x.min())
 
     def cargarFiltros(self,rutaArchivo=None,archivoDatos=None):
-        
+
         def decodificarFiltro(campo,cond,valor):
             #self.datasets[archivoDatos].cambiarColumnaAString(campo) #para homogeneizar los tipos de datos
             print ("TIPO",self.datasets[archivoDatos].columnaNumerica(campo))
@@ -99,11 +99,11 @@ class AdminModelo:
                 auxFiltro=auxFiltroCompuestos[0]
             else:
                 auxFiltro=list(auxFiltroSimples.values())[0] #values retorna dict_values, que es una view, no una lista, por lo que hay que hacer la ista con list()
-                
-        
+
+
         self.filtros[archivoDatos]=auxFiltro
-       
-            
+
+
         arch.close()
 
         self.datasets[archivoDatos].filtrar(self.filtros[archivoDatos])
@@ -118,16 +118,16 @@ class AdminModelo:
         if (archivoDatos not in self.categorias):
             self.categorias[archivoDatos]=[]
             self.categoriasInvalidos[archivoDatos]=[]
-        
-            
+
+
         while True:
             lines = archivo.readline()
-           
+
             #LEE LA SIGUIENTE LINEA, ESTA FORMA PERMITE UN PROCESAMIENTO MAS RAPIDO
             #NO HAY QUE LEER TODO EL ARCHIVO DE UNA
             if not lines:
                 break
-            
+
             atributo,valorAsociado,keys = lines.split('..') #separa por los distintos campos de cada linea con ..
             keys = keys.replace('\n', '') #para eliminar los saltos de linea
             claves = keys.split(',') #las claves de cada categoria se separan por ,
@@ -135,21 +135,17 @@ class AdminModelo:
                 nuevosInvalidos=True
                 for c in claves:
                     self.categoriasInvalidos[archivoDatos].append(c)
-                    
+
             else:
 
                 categoriaNueva = cat.Categoria(atributo, valorAsociado, claves)
                 self.categorias[archivoDatos].append(categoriaNueva)
-                
 
-        #HACE FALTA TRABAJAR SOBRE CATEGORIAS PARA AGREGAR VALORES INVALIDOS
 
-        #self.categoriasInvalidos[archivoDatos]= ['BACHILLER', 'TÉCNICO', 'BACHILLERATO']
-   
         archivo.close()
 
         auxCategorias=self.categorias[archivoDatos] #obtengo las categorias asociadas a ese archivo
-        atr=auxCategorias[-1].getNombreAtributo() #por ejemplo 'titlo_secundario', esto tomo siempre el ultimo, asi que guarda de mezclar categorias en un mismo archivo
+        atr=auxCategorias[-1].getNombreAtributo() #por ejemplo 'titulo_secundario', esto tomo siempre el ultimo, asi que guarda de mezclar categorias en un mismo archivo
         self.datasets[archivoDatos].columnaToUpper(atr) #la categoria afecta a esto
         for i,item in enumerate(auxCategorias):   #tambien creo que se puede el elemento directo
             self.datasets[archivoDatos].reemplazarValores(atr,auxCategorias[i].getKeys(), auxCategorias[i].getValorAsociado())
@@ -184,20 +180,33 @@ class AdminModelo:
     def getDatasets(self):
         return self.datasets
 
-    def hacerMergeDatasets(self):
+    def hacerMergeDatasets(self, datosMerge):
+
+
         if(len(self.datasets)<2):
             raise ValueError('no se puede realizar merge de menos de un archivo')
         dataMerge=None
         counter=0
-        for clave in self.datasets:
-            if(counter == 0):
-                #necesito el primer datasets para poder ir uniendo con los demas
+        for clave in self.datasets: #clave sería la ruta absoluta del archivo
+            nombreArchivo = clave.split('/')[-1] #obtengo sólo el nombre del archivo
+
+            if(counter == 0): #necesito el primer datasets para poder ir uniendo con los demas
                 dataMerge=self.datasets[clave].getCopia()
-                counter=counter+1
+                counter += 1
+
             else:
+                if (datosMerge[nombreArchivo] != None):
+                    dataMerge.mergeCon(self.datasets[clave], clave = datosMerge[nombreArchivo])
 
-                dataMerge.mergeCon(self.datasets[clave])
+                '''
+                este else se tendría que agregar solo si se quiere que, si
+                no se seleccionan columnas para hacer el merge, se haga por
+                todas las columnas en comun.
 
+                else:
+                    dataMerge.mergeCon(self.datasets[clave])
+                '''
+        print (dataMerge.nombresColumnas())
         self.merge=dataMerge
         return dataMerge
 
