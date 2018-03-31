@@ -11,12 +11,20 @@ from pandas.api.types import is_string_dtype
 from pandas.api.types import is_numeric_dtype
 class Dataset:
     ds = []
+    nombre=None
 
     def cargarDatos(self, cargadorDatos, nombreArchivo): #Dado un cargador de datos que devuelva un Dataframe y un archivo, lo guarda como nuevo dataset
         self.ds = cargadorDatos.cargarArchivo(nombreArchivo)
-        
+        self.nombre=nombreArchivo.split('/')[-1] #nombre archivo
   
 
+    def getNombre(self):
+        return self.nombre
+    
+    def setNombre(self,nombre):
+        self.nombre=nombre
+        
+        
     def cargarDataframe(self, dataframe): #Carga el dataframe enviado como parámetro
         self.ds = dataframe
 
@@ -27,15 +35,21 @@ class Dataset:
     def getCopia(self):
         out= Dataset()
         out.cargarDataframe(self.ds.copy(deep=True))
+        out.setNombre(self.nombre)
         return out
     
-    def mergeCon(self, otroDataset, clave=None, forma='inner'):
-        self.ds = self.getMerge(otroDataset, clave, forma).datos()
+    def mergeCon(self, otroDataset, clave=None,left_on=None,right_on=None, forma='inner',sufijoX='_x',sufijoY='_y'):
+        if(clave is not None):
+            self.ds = self.getMerge(otroDataset, clave, forma).datos()
+        else:
+            self.ds = self.getMerge(otroDataset, left_on=left_on,right_on=right_on, forma=forma).datos()
 
-
-    def getMerge(self, otroDataset, clave=None, forma='inner'):
+    def getMerge(self, otroDataset, clave=None,left_on=None, right_on=None, forma='inner',sufijoX='_x',sufijoY='_y'):
         out = Dataset()
-        out.cargarDataframe(pandas.merge(self.datos(),otroDataset.datos(), on=clave,how=forma))
+        if(clave is not None):
+            out.cargarDataframe(pandas.merge(self.datos(),otroDataset.datos(), on=clave,how=forma,suffixes = (sufijoX,sufijoY)))
+        else:
+            out.cargarDataframe(pandas.merge(self.datos(),otroDataset.datos(), left_on=left_on,right_on=right_on,how=forma,suffixes = (sufijoX,sufijoY)))
         return out
 
 
@@ -102,7 +116,13 @@ class Dataset:
     def columnaNumerica(self,columna):
         return is_numeric_dtype(self.ds[columna])
     
+    def reemplazarNombreColumna(self,NombreViejo,NombreNuevo):
+        
+        self.ds.columns=[NombreNuevo if x==NombreViejo else x for x in self.ds.columns]
     
+    def reemplazarNombresColumnas(self,prefijo):
+        #le cambia el nombre a todas las columnas poniendo un prefijo
+        self.ds.columns=[prefijo+x for x in self.ds.columns]
         
 if __name__ == '__main__':
     import numpy as np

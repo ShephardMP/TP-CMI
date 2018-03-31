@@ -32,6 +32,11 @@ class AdminModelo:
     def cargarDatos(self,rutaArchivo):
         aux=ds.Dataset()
         aux.cargarDatos(self.cargadorDefecto, rutaArchivo)
+        
+        nombreArch=rutaArchivo.split('/')[-1]
+        
+        nombreArch=nombreArch+'_'
+        aux.reemplazarNombresColumnas(nombreArch)
         self.datasets[rutaArchivo]=aux
 
 
@@ -187,16 +192,23 @@ class AdminModelo:
             raise ValueError('no se puede realizar merge de menos de un archivo')
         dataMerge=None
         counter=0
+        palabrasClavesAnt=None
+        palabrasClavesAct=None
         for clave in self.datasets: #clave sería la ruta absoluta del archivo
             nombreArchivo = clave.split('/')[-1] #obtengo sólo el nombre del archivo
 
             if(counter == 0): #necesito el primer datasets para poder ir uniendo con los demas
                 dataMerge=self.datasets[clave].getCopia()
-                counter += 1
+                palabrasClavesAnt=datosMerge[nombreArchivo]
+               
 
             else:
                 if (datosMerge[nombreArchivo] != None):
-                    dataMerge.mergeCon(self.datasets[clave], clave = datosMerge[nombreArchivo])
+                    print  (datosMerge[nombreArchivo])
+                    palabrasClavesAct= datosMerge[nombreArchivo]
+                    
+                    dataMerge.mergeCon(self.datasets[clave], left_on=palabrasClavesAnt,right_on= palabrasClavesAct)
+                    palabrasClavesAnt=palabrasClavesAct
 
                 '''
                 este else se tendría que agregar solo si se quiere que, si
@@ -206,6 +218,8 @@ class AdminModelo:
                 else:
                     dataMerge.mergeCon(self.datasets[clave])
                 '''
+            counter += 1
+            
         print (dataMerge.nombresColumnas())
         self.merge=dataMerge
         return dataMerge
