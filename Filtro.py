@@ -64,10 +64,18 @@ class FiltroIgual(FiltroSimple):
 
     def cumple(self, dataframe):
         return dataframe[self.getColumna()] == self.getValor()
+    
 
 "------------------------------------------------------------------------------------"
 "------------------------------------------------------------------------------------"
+class FiltroNoIgual(FiltroSimple):
 
+    def cumple(self, dataframe):
+        return dataframe[self.getColumna()] != self.getValor()
+    
+
+"------------------------------------------------------------------------------------"
+"------------------------------------------------------------------------------------"
 class FiltroNOT(FiltroDataframe):
     filtro = None
 

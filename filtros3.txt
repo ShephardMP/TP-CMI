@@ -1,0 +1,7 @@
+Cursadas.xlsx_fecha_regularidad..>..2014-01-01 
+AND
+Cursadas.xlsx_fecha_regularidad..>..2015-01-01 
+AND
+Cursadas.xlsx_carrera..=..201
+OR
+Cursadas.xlsx_carrera..=..203
