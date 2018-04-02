@@ -36,7 +36,8 @@ class AdminModelo:
         nombreArch=rutaArchivo.split('/')[-1]
         
         nombreArch=nombreArch+'_'
-        aux.reemplazarNombresColumnas(nombreArch)
+        aux.agregarPrefijoNombresColumnas(nombreArch)
+
         self.datasets[rutaArchivo]=aux
 
 

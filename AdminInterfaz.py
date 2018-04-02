@@ -51,8 +51,14 @@ class AdminInterfaz:
 
     def configurarCluster(self, ventanaSeleccion, cantClusters = 4):
         ventanaSeleccion.cerrar()
+       
         if(len(self.opcionesElegidas)<2):
             raise ValueError('no se eligieron dos opciones para hacer clustering')
+        '''
+        if(self.opcionesElegidas[self.opciones[0]]==self.opcionesElegidas[self.opciones[1]]):
+           self.opcionesElegidas[self.opciones[0]]=self.opcionesElegidas[self.opciones[0]]+'_x'
+           self.opcionesElegidas[self.opciones[1]]=self.opcionesElegidas[self.opciones[1]]+'_y'
+           '''
         self.adminModelo.configurarCluster(cantidadClusters = cantClusters)
         #se abre la ventana que configura el merge del cluster
         VentanaMerge.vp_start_gui(self, self.mapArchivoYColumnas)
