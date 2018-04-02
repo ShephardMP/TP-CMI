@@ -36,7 +36,6 @@ class AdminModelo:
         nombreArch=rutaArchivo.split('/')[-1]
         
         nombreArch=nombreArch+'_'
-        metodos-nuevos-dataset,-merge-por-clave-izq-y-derecha-y-cambios-en-los-nombres-de-colum
         aux.agregarPrefijoNombresColumnas(nombreArch)
 
         self.datasets[rutaArchivo]=aux
