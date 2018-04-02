@@ -120,7 +120,7 @@ class Dataset:
         
         self.ds.columns=[NombreNuevo if x==NombreViejo else x for x in self.ds.columns]
     
-    def reemplazarNombresColumnas(self,prefijo):
+    def agregarPrefijoNombresColumnas(self,prefijo):
         #le cambia el nombre a todas las columnas poniendo un prefijo
         self.ds.columns=[prefijo+x for x in self.ds.columns]
         
