@@ -20,12 +20,12 @@ except ImportError:
 import VentanaSeleccion_support
 
 
-def vp_start_gui(Admin, mapaLxC=None,mapaResult=None):
+def vp_start_gui(nombre='', columnas=None,Result=None,numClusters=None):
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = Tk()
     VentanaSeleccion_support.set_Tk_var()
-    top = VentanaSeleccion (root, Admin, mapaLxC, mapaResult)
+    top = VentanaSeleccion (root,nombre,columnas, Result,numClusters)
     VentanaSeleccion_support.init(root, top)
     root.mainloop()
 
@@ -50,23 +50,29 @@ class VentanaSeleccion:
     #genera una interfaz con indicadores y opciones y devuelve las opciones elegidas en mapaElecciones, se debe proporcionar el mapa de labels y las opciones
     #El maximo que soporta son 5 labels, further work is requiered.
 
-    adminInter = None
-    mapElecciones=None
+   
+    
     resultados=None
     top=None
     def cerrar(self):
         self.top.destroy()
 
     def aceptarOpciones(self):
-        for K in self.mapElecciones:
-                self.resultados[K]=self.mapElecciones[K].get() #mapElecciones en la misma clave que es un texto debiera ser un combobox con una opcion seleccionada
-        self.adminInter.configurarCluster(self, cantClusters = int(self.comboCantClusters.get()))
+        
+        for i in self.listbox.curselection():
+            self.resultados.append(self.listbox.get(i))#paso a una lista lo seleccionado por el list box
+        
+        
+        self.numClusters.append(int(self.comboCantClusters.get()))
+       
+        self.cerrar()
+        #self.adminInter.configurarCluster(self, cantClusters = int(self.comboCantClusters.get()))
 
     def insertarAccionesBotones(self):
         self.aceptar.configure(command=self.aceptarOpciones)
         self.cancelar.configure(command=self.cerrar)
 
-    def __init__(self, top=None,AdminInterfaz = None, mapaLabelsXContenido=None, resultados=None):
+    def __init__(self, top=None,nombre='', listColumnas=None, resultados=None,numClusters=None):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -83,21 +89,17 @@ class VentanaSeleccion:
         self.style.map('.',background=
             [('selected', _compcolor), ('active',_ana2color)])
 
-        top.geometry("851x232+608+384")
+        top.geometry("600x400+608+384")
         top.title("New Toplevel 1")
         top.configure(background="#d9d9d9")
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
 
 
-        Xlabel=0.02
-        Ylabel=0.28
-
-        Xbox=0.02
-        Ybox=0.5
+       
 
         self.aceptar = Button(top)
-        self.aceptar.place(relx=Xbox, rely=0.78, height=44, width=117)
+        self.aceptar.place(relx=0.22, rely=0.83, height=44, width=97)
         self.aceptar.configure(activebackground="#d9d9d9")
         self.aceptar.configure(activeforeground="#000000")
         self.aceptar.configure(background="#d9d9d9")
@@ -110,7 +112,7 @@ class VentanaSeleccion:
         self.aceptar.configure(width=117)
 
         self.cancelar = Button(top)
-        self.cancelar.place(relx=Xbox+0.2, rely=0.78, height=44, width=117)
+        self.cancelar.place(relx=0.42, rely=0.83, height=44, width=97)
         self.cancelar.configure(activebackground="#d9d9d9")
         self.cancelar.configure(activeforeground="#000000")
         self.cancelar.configure(background="#d9d9d9")
@@ -121,41 +123,46 @@ class VentanaSeleccion:
         self.cancelar.configure(pady="0")
         self.cancelar.configure(text='''Cancelar''')
 
-        self.labCantClusters = ttk.Label(top, text="Cantidad de clusters")
-        self.labCantClusters.place(relx= Xbox+0.4, rely=0.78)
+        self.labCantClusters = ttk.Label(top, text="    Cantidad de clusters")
+        self.labCantClusters.place(relx=0.7, rely=0.23, height=31, width=154)
         self.labCantClusters.configure(background="#d9d9d9")
 
         self.comboCantClusters = ttk.Combobox(top, state="readonly", width=15 )
-        self.comboCantClusters.place(relx= Xbox+0.4, rely=0.88)
+        self.comboCantClusters.place(relx=0.72, rely=0.33, relheight=0.05, relwidth=0.24)
         self.comboCantClusters["values"] = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         self.comboCantClusters.set(2)
 
-        self.mapElecciones={} #label x combobox
+       
         self.resultados=resultados
+        self.numClusters=numClusters
         self.top=top
-        self.adminInter = AdminInterfaz
-
-        if(mapaLabelsXContenido is not None):
-            for K in mapaLabelsXContenido:
+      
+        self.listbox=None
+        if(listColumnas is not None):
+            
                     Label1 = Label(top)
-                    Label1.place(relx=Xlabel, rely=Ylabel, height=21, width=140)
+                    Label1.place(relx=0.28, rely=0.13, height=21, width=134)
                     Label1.configure(background="#d9d9d9")
                     Label1.configure(disabledforeground="#a3a3a3")
                     Label1.configure(foreground="#000000")
-                    Label1.configure(text=K)
+                    Label1.configure(text=nombre)
 
-                    TCombobox1 = ttk.Combobox(top,state='readonly')
-                    TCombobox1.place(relx=Xbox, rely=Ybox, relheight=0.12, relwidth=0.17)
-
-                    TCombobox1.configure(textvariable=StringVar()) #Si uso el combobox de ventanaSeleccion_support se comparte el mismo combobox para todos los valores
-                    TCombobox1.configure(takefocus="")
-
-                    TCombobox1["values"]=mapaLabelsXContenido[K]
+                            
+                    self.listbox = Listbox(top)
+                    self.listbox.configure(selectmode = MULTIPLE) #para seleccionar multiples valores
+                    self.listbox.place(relx=0.12, rely=0.23, relheight=0.53, relwidth=0.56)
+                    self.listbox.configure(background="white")
+                    self.listbox.configure(disabledforeground="#a3a3a3")
+                    self.listbox.configure(font="TkFixedFont")
+                    self.listbox.configure(foreground="#000000")
+                    self.listbox.configure(width=144)
+                    for columna in listColumnas:
+                        self.listbox.insert(END, columna) #se inserta cada columnas en la listbox
+                   
                     #TCombobox1.bind("<<ComboboxSelected>>", self.selection_changed)  EVENTO
 
-                    self.mapElecciones[K]=TCombobox1
-                    Xlabel=Xlabel+0.2
-                    Xbox=Xbox+0.2
+     
+                  
 
 
 

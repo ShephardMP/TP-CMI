@@ -35,8 +35,8 @@ class AdminModelo:
         
         nombreArch=rutaArchivo.split('/')[-1]
         
-        nombreArch=nombreArch+'_'
-        aux.agregarPrefijoNombresColumnas(nombreArch)
+        #nombreArch=nombreArch+'_'
+        #aux.agregarPrefijoNombresColumnas(nombreArch)
 
         self.datasets[rutaArchivo]=aux
 
@@ -202,10 +202,7 @@ class AdminModelo:
     def generarCluster(self,columna1,columna2,dataframe=None):
         #esto esta pensado para que cuando se llame para generar el cluster se llame con las columnas propiamente dichas
         if(dataframe is None):
-            if(self.merge is None):
-                dataframe=self.hacerMergeDatasets()
-            else:
-                dataframe=self.merge
+            raise ValueError('el dataframe para generar el cluster no puede ser None')
 
         dataCluster = ds.Dataset()
         #dataCluster.cargarDataframe(dataMerge.seleccionarColumnas(['titulo_secundario','nota']))
@@ -259,11 +256,11 @@ class AdminModelo:
        
         self.merge=dataMerge
         
-        
-        #solo testing
+        '''
+        solo testing
         import test as test
         test.vp_start_gui(dataMerge)
-        
+        '''
         
         return dataMerge
 
