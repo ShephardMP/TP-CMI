@@ -117,8 +117,6 @@ class Ventana_principal:
         self.DibujarTabla(self.adminInterfaz.__test__())
 
     def mostrarTablaPorTab(self,nombreTabla):
-        print('se selecciono la tabla ' + nombreTabla)
-        print(self.tablaActual)
         if(len(self.mapaRutas)>1):
             self.tabActiva=self.mapaRutas[nombreTabla]
             for tabla in self.tablas:
