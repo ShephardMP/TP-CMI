@@ -272,54 +272,7 @@ class AdminModelo:
         return [datasetMergeNombre, datasetMerge] #retorna el nombre del nuevo dataset y el dataset mismo
 
 
-    '''
-    def hacerMergeDatasets(self, datosMerge):
-
-        if(len(self.datasets)<2):
-            raise ValueError('no se puede realizar merge de menos de un archivo')
-        dataMerge=None
-        counter=0
-        palabrasClavesAnt=None
-        palabrasClavesAct=None
-        for clave in self.datasets: #clave sería la ruta absoluta del archivo
-            nombreArchivo = clave.split('/')[-1] #obtengo sólo el nombre del archivo
-
-            if(counter == 0): #necesito el primer datasets para poder ir uniendo con los demas
-                dataMerge=self.datasets[clave].getCopia()
-                palabrasClavesAnt=datosMerge[nombreArchivo]
-
-
-            else:
-                if (datosMerge[nombreArchivo] != None):
-                    print  (datosMerge[nombreArchivo])
-                    palabrasClavesAct= datosMerge[nombreArchivo]
-
-                    dataMerge.mergeCon(self.datasets[clave], left_on=palabrasClavesAnt,right_on= palabrasClavesAct)
-                    palabrasClavesAnt=palabrasClavesAct
-
-
-                este else se tendría que agregar solo si se quiere que, si
-                no se seleccionan columnas para hacer el merge, se haga por
-                todas las columnas en comun.
-
-                else:
-                    dataMerge.mergeCon(self.datasets[clave])
-
-            counter += 1
-
-        print (dataMerge.nombresColumnas())
-
-        self.merge=dataMerge
-
-
-        #solo testing
-        import test as test
-        test.vp_start_gui(dataMerge)
-
-
-        return dataMerge
-        '''
-
+    
     def getDatasetMerge(self):
         if(self.merge is None):
             raise ValueError('no hay merges en adminModelo')
