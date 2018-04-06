@@ -60,8 +60,9 @@ class VentanaMerge:
                 selecciones[l[0]]= columnas
             else:
                 selecciones[l[0]]= None
-        self.adminInter.mostrarCluster(selecciones)
         self.top.destroy()
+        self.adminInter.realizarMerge(selecciones)
+
 
 
     def __init__(self, top=None, adminInterfaz = None,  tablas=[]):

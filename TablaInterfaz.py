@@ -51,5 +51,9 @@ class TablaInterfaz:
     def cargarDataset(self, dataset):
         self.nombrarColumnas(dataset.nombresColumnas())
         dataframe = dataset.datos()
+        counter = 0
         for fila in dataframe.itertuples():
+            if counter > 15000:
+                break
             self.insertarFila(fila[1:len(fila)])
+            counter += 1

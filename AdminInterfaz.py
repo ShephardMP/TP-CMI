@@ -14,11 +14,14 @@ class AdminInterfaz:
 
     #SE ESPERA QUE SEAN STRINGS CON EL PATH A LSO ARCHIVOS DE DATOS
     adminModelo=None
+    mw = None
 
     def __init__(self,referenciaAdminModelo=None):
         self.adminModelo=referenciaAdminModelo
         mainWindow.vp_start_gui(self)
 
+    def setMainWindow(self, mainwindow):
+        self.mw = mainwindow
 
     def mostrarDatos(self, nombreArchivo):
 
@@ -33,35 +36,27 @@ class AdminInterfaz:
         pass
 
 
-    def abrirVentanaCluster(self, nombreArchivo):
-        #nombreArchivo es el nombre del archivo con el que quiero hacaer clustering, se espera tho, que sea el del merge
-        self.listArchivoYColumnas=[]
-        self.opcionesElegidas=[]
-        numClusters=[]
-        #for K in nombreArchivos:
+    def abrirVentanaCluster(self, nombreArchivos):
+
+        self.mapArchivoYColumnas={}
+        self.opcionesElegidas={}
+        self.opciones=[x for x in nombreArchivos.keys()] #lista por comprension, tiene los nombres resumidos
+        for K in nombreArchivos:
             #nombrearchivos[K] es la ruta ABSOLUTA del archivo, la idea es obtener
             #las columnas del dataset para mostrar el nombre resumido del archivo y las columnas.
-        auxDataset=self.adminModelo.getDataset(nombreArchivo)
-        self.listArchivoYColumnas=auxDataset.nombresColumnas()
+            auxDataset=self.adminModelo.getDataset(nombreArchivos[K])
+            self.mapArchivoYColumnas[K]=auxDataset.nombresColumnas()
 
-        #ventanaSeleccion es responsable de mostrar un el nobre del archivo y sus columnas para poder ser elegidas
-        VentanaSeleccion.vp_start_gui(nombreArchivo.split('/')[-1], self.listArchivoYColumnas,self.opcionesElegidas,numClusters)
-        
+        VentanaSeleccion.vp_start_gui(self, self.mapArchivoYColumnas,self.opcionesElegidas)
+
+
+
+
+    def configurarCluster(self, ventanaSeleccion, cantClusters = 4):
+        ventanaSeleccion.cerrar()
+
         if(len(self.opcionesElegidas)<2):
             raise ValueError('no se eligieron dos opciones para hacer clustering')
-        if(len(numClusters)!=1):
-            raise ValueError ("hubo error en seleccion de numero de clusters")
-        self.configurarCluster(numClusters[0])
-        self.mostrarCluster(nombreArchivo)
-
-
-
-    def configurarCluster(self, cantClusters = 4):
-       
-     
-        
-            
-       
         '''
         if(self.opcionesElegidas[self.opciones[0]]==self.opcionesElegidas[self.opciones[1]]):
            self.opcionesElegidas[self.opciones[0]]=self.opcionesElegidas[self.opciones[0]]+'_x'
@@ -69,17 +64,25 @@ class AdminInterfaz:
            '''
         self.adminModelo.configurarCluster(cantidadClusters = cantClusters)
         #se abre la ventana que configura el merge del cluster
-        #VentanaMerge.vp_start_gui(self, self.mapArchivoYColumnas)
+        VentanaMerge.vp_start_gui(self, self.mapArchivoYColumnas)
 
 
 
 
-    def mostrarCluster(self, rutaArchivo):
-        dataset = self.adminModelo.getDataset(rutaArchivo)
-        self.adminModelo.generarCluster(self.opcionesElegidas[0],self.opcionesElegidas[1],dataset)
+    def mostrarCluster(self, datosMerge):
+        dataset = self.adminModelo.hacerMergeDatasets(datosMerge)
+        self.adminModelo.generarCluster(self.opcionesElegidas[self.opciones[0]],self.opcionesElegidas[self.opciones[1]],dataset)
         print ('end cluster')
 
 
+    def abrirVentanaMerge(self, nombresDatasetsAMergear):
+        datasetsAMergear = []
+        columnas = self.adminModelo.getNombresColumnasDatasets(nombresDatasetsAMergear)
+        VentanaMerge.vp_start_gui(self, columnas)
+
+    def realizarMerge(self, selecciones):
+        datasetMerge = self.adminModelo.hacerMergeDatasets(selecciones)
+        self.mw.agregarDataset(datasetMerge[1], datasetMerge[0]) # se manda el dataset y el nombre
 
 
     def mostrarArbol(self):

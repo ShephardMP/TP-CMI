@@ -54,10 +54,10 @@ def destroy_Ventana_principal():
 class Ventana_principal:
     adminInterfaz=None
 
-    tabActiva=None #es el absolute path de la tab seleccionada
+    tabActiva=None
     tabs=None
     tablaActual = None
-    tablas=None #nombre y la tabla
+    tablas=None
     note=None
     mapaRutas=None #va a servir para mostrar una version resumida en la tab pero pudiendo comunicarse con el adminModelo
 
@@ -81,6 +81,23 @@ class Ventana_principal:
             self.note.addTab(auxRuta)
             self.note.seleccionarTab(auxRuta)
             self.tabActiva=ruta
+            self.actualizarCombobox()
+
+    def agregarDataset(self, datasetNuevo, nombre):
+        nuevaTabla = self.DibujarTabla(datasetNuevo)
+        self.tabs.append(nombre)
+        self.tablas.append([nombre, nuevaTabla])
+        self.mapaRutas[nombre] = nombre
+        self.note.addTab(nombre)
+        self.note.seleccionarTab(nombre)
+        self.tabActiva = nombre
+        self.actualizarCombobox()
+
+    def actualizarCombobox(self):
+        c = []
+        for t in self.tablas:
+            c.append(t[0])
+        self.ComboArchivoAMergear["values"] = c
 
     def botonCategorias(self):
         ruta=askopenfilename()
@@ -94,14 +111,14 @@ class Ventana_principal:
             self.DibujarTabla(aux)
 
     def botonCluster(self):
-        self.adminInterfaz.abrirVentanaCluster(self.tabActiva)
-        
-       #le mando la tab activa para hacer clustering, se espera que se elija la del merge de datasets
-       #de caso contrario el usuario vera un arhivo que no espera y lo puede solucionar tranquilamente
+        self.adminInterfaz.abrirVentanaCluster(self.mapaRutas) #le mando los nombres resumidos y a que corresponden, el adminInterfaz debiera saber comunicarse con el modelo para obtener los dataset correspondiente
 
     def botonArbol(self):
         self.DibujarTabla(self.adminInterfaz.__test__())
+
     def mostrarTablaPorTab(self,nombreTabla):
+        print('se selecciono la tabla ' + nombreTabla)
+        print(self.tablaActual)
         if(len(self.mapaRutas)>1):
             self.tabActiva=self.mapaRutas[nombreTabla]
             for tabla in self.tablas:
@@ -109,7 +126,18 @@ class Ventana_principal:
                     tabla[1].place(x=10000, y=150, anchoPix= 960)
                 else:
                     tabla[1].place(x=10, y=150, anchoPix= 960)
+                    self.tablaActual = tabla[1]
 
+
+
+    def hacerMergeTablas(self):
+        tablasAMergear = []
+        for t in self.tablas:
+            if (t[1] == self.tablaActual or t[0] ==self.ComboArchivoAMergear.get()): # si es la tabla actual o la seleccionada en el combobox
+                tablasAMergear.append(t[0]) #se agrega a la lista a mergear
+        if len(tablasAMergear) < 2: #si se selecciono la misma, se va a hacer merge con la misma tabla
+            raise ValueError('Se deben seleccionar 2 tablas diferentes para realizar un merge')
+        self.adminInterfaz.abrirVentanaMerge(tablasAMergear)
 
     def configurarVistaNotebook(self):
         self.style.configure('TNotebook.Tab', background='#d9d9d9')
@@ -144,6 +172,8 @@ class Ventana_principal:
         self.cargarFiltros.configure(command=self.botonFiltros)
         self.generarArbol.configure(command=self.botonArbol)
         self.generarCluster.configure(command=self.botonCluster)
+        self.botonMerge.configure(command=self.hacerMergeTablas)
+
     def insertarCambios(self):
         #ESTE METODO GENERA CAMBIOS A LA INTERFAZ, POR EJEMPLO, LE DA A LOS BOTONES TOOLTIP Y LOS LIGA A OTRAS FUNCIONES
         self.__inicializarPrivados__()
@@ -182,6 +212,7 @@ class Ventana_principal:
         THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
         self.adminInterfaz=adminInterfaz #referencia al administrador de interfaz que se comunica con el admin de modelo para manejar la parte logica
+        self.adminInterfaz.setMainWindow(self)
 
         self.CargarCategorias = Button(top)
         self.CargarCategorias.place(relx=0.12, rely=0.01, height=103, width=104)
@@ -256,11 +287,28 @@ class Ventana_principal:
         self.generarArbol.configure(pady="0")
         self.generarArbol.configure(text='''Ver Arbol''')
 
+        self.botonMerge = Button(top)
+        self.botonMerge.place(x=10, rely=0.84, height=30, width=100)
+        self.botonMerge.configure(activebackground="#d9d9d9")
+        self.botonMerge.configure(activeforeground="#000000")
+        self.botonMerge.configure(background="#d9d9d9")
+        self.botonMerge.configure(disabledforeground="#a3a3a3")
+        self.botonMerge.configure(foreground="#000000")
+        self.botonMerge.configure(highlightbackground="#d9d9d9")
+        self.botonMerge.configure(highlightcolor="black")
+        self.botonMerge.configure(pady="0")
+        self.botonMerge.configure(text='''Hacer merge''')
+
+        self.ComboArchivoAMergear = ttk.Combobox(top, state="readonly", width=15)
+        self.ComboArchivoAMergear.place(x= 115, rely=0.84)
+
+
         self.insertarCambios()
 
         self.note=Notebook.Notebook(top,self)
 
         self.tablas = []
+
 
 if __name__ == '__main__':
     vp_start_gui()
