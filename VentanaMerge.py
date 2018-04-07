@@ -79,6 +79,7 @@ class VentanaMerge:
         top.configure(background="#d9d9d9")
         self.top = top
         self.adminInter = adminInterfaz
+        self.listboxes = []
 
 
         offset = 0.0 #sirve para ir corriendo los elementos de la ventana
@@ -91,7 +92,8 @@ class VentanaMerge:
             label.configure(disabledforeground="#a3a3a3")
             label.configure(foreground="#000000")
             label.configure(text = k)
-
+            
+            
             listbox = Listbox(top)
             listbox.configure(selectmode = MULTIPLE) #para seleccionar multiples valores
             listbox.configure(exportselection = 0) #para seleccionar de multiples listboxes
