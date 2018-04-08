@@ -60,7 +60,7 @@ class AdminInterfaz:
 
 
 
-    def configurarCluster(self, ventanaSeleccion, cantClusters = 4):
+    def configurarCluster(self, cantClusters = 4):
         self.adminModelo.configurarCluster(cantidadClusters = cantClusters)
 
 
