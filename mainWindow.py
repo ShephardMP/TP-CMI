@@ -54,10 +54,10 @@ def destroy_Ventana_principal():
 class Ventana_principal:
     adminInterfaz=None
 
-    tabActiva=None
+    tabActiva=None #es el absolute path de la tab seleccionada
     tabs=None
     tablaActual = None
-    tablas=None
+    tablas=None #nombre y la tabla
     note=None
     mapaRutas=None #va a servir para mostrar una version resumida en la tab pero pudiendo comunicarse con el adminModelo
 
@@ -111,8 +111,11 @@ class Ventana_principal:
             self.DibujarTabla(aux)
 
     def botonCluster(self):
-        self.adminInterfaz.abrirVentanaCluster(self.mapaRutas) #le mando los nombres resumidos y a que corresponden, el adminInterfaz debiera saber comunicarse con el modelo para obtener los dataset correspondiente
-
+        self.adminInterfaz.abrirVentanaCluster(self.tabActiva)
+        
+       #le mando la tab activa para hacer clustering, se espera que se elija la del merge de datasets
+       #de caso contrario el usuario vera un arhivo que no espera y lo puede solucionar tranquilamente
+        
     def botonArbol(self):
         self.DibujarTabla(self.adminInterfaz.__test__())
 
