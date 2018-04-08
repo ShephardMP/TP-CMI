@@ -38,18 +38,18 @@ class Dataset:
         out.setNombre(self.nombre)
         return out
 
-    def mergeCon(self, otroDataset, clave=None,left_on=None,right_on=None, forma='inner'):
+    def mergeCon(self, otroDataset, clave=None,left_on=None,right_on=None, forma='inner',sufijoX='_x',sufijoY='_y'):
         if(clave is not None):
             self.ds = self.getMerge(otroDataset, clave, forma).datos()
         else:
             self.ds = self.getMerge(otroDataset, left_on=left_on,right_on=right_on, forma=forma).datos()
 
-    def getMerge(self, otroDataset, clave=None,left_on=None, right_on=None, forma='inner'):
+    def getMerge(self, otroDataset, clave=None,left_on=None, right_on=None, forma='inner',sufijoX='_x',sufijoY='_y'):
         out = Dataset()
         if(clave is not None):
-            out.cargarDataframe(pandas.merge(self.datos(),otroDataset.datos(), on=clave,how=forma))
+            out.cargarDataframe(pandas.merge(self.datos(),otroDataset.datos(), on=clave,how=forma,suffixes = (sufijoX,sufijoY)))
         else:
-            out.cargarDataframe(pandas.merge(self.datos(),otroDataset.datos(), left_on=left_on,right_on=right_on,how=forma))
+            out.cargarDataframe(pandas.merge(self.datos(),otroDataset.datos(), left_on=left_on,right_on=right_on,how=forma,suffixes = (sufijoX,sufijoY)))
         return out
 
 
