@@ -36,7 +36,7 @@ class AdminInterfaz:
         pass
 
 
-    def abrirVentanaCluster(self, nombreArchivos):
+    def abrirVentanaCluster(self, nombreArchivo):
         #nombreArchivo es el nombre del archivo con el que quiero hacaer clustering, se espera tho, que sea el del merge
         self.listArchivoYColumnas=[]
         self.opcionesElegidas=[]
@@ -66,7 +66,7 @@ class AdminInterfaz:
 
 
 
-    def mostrarCluster(self, datosMerge):
+    def mostrarCluster(self, rutaArchivo):
         dataset = self.adminModelo.getDataset(rutaArchivo)
         self.adminModelo.generarCluster(self.opcionesElegidas[0],self.opcionesElegidas[1],dataset)
         print ('end cluster')
