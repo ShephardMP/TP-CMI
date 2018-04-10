@@ -86,12 +86,35 @@ class Ventana_principal:
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
             aux=self.adminInterfaz.cargarCategorias(ruta, self.tabActiva)
-            self.DibujarTabla(aux)
+            tablaDibujada=self.DibujarTabla(aux)
+            
+            #a continuacion lo que se hace es eliminar la tabla dibujada anterior para reemplazarla con una nueva
+            #esta nueva tabla tiene los cambios presentados al cargar las nuevas categorias
+            #podria hacerse que tablas fuera un diccionario para hacerlo mas eficiente
+            #el costo se espera O(n), se considera que es insignificante
+            auxRuta=self.tabActiva.split('/')[-1]
+            for i in self.tablas: 
+                #self tablas es una lista de listas, si auxRuta (la version acotada del archivo)
+                #se encuentra en una de esas listas entonces hay que actualizar el dibujo
+                if auxRuta in i:
+                    self.tablas.remove(i)
+                    self.tablas.append([auxRuta,tablaDibujada])
+                    break
+                    
     def botonFiltros(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
             aux =self.adminInterfaz.cargarFiltros(ruta, self.tabActiva)
-            self.DibujarTabla(aux)
+            tablaDibujada=self.DibujarTabla(aux)
+            
+            #idem botonCategorias
+            auxRuta=self.tabActiva.split('/')[-1]
+            for i in self.tablas: 
+                if auxRuta in i:
+                    self.tablas.remove(i)
+                    self.tablas.append([auxRuta,tablaDibujada])
+                    break
+            
 
     def botonCluster(self):
         self.adminInterfaz.abrirVentanaCluster(self.tabActiva)

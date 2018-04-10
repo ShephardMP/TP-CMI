@@ -130,8 +130,10 @@ class AdminModelo:
             print(x)
         '''
         if(len(auxFiltroCompuestos)>1): #solo hacer OR si existe mas de un filtro AND
-            for x in range(0,len(auxFiltroCompuestos),2):
-                auxFiltro=fil.FiltroOR(auxFiltroCompuestos[x],auxFiltroCompuestos[x+1])
+            auxFiltro=auxFiltroCompuestos[0]
+            for x in range(1,len(auxFiltroCompuestos)):
+                orAUX=fil.FiltroOR(auxFiltro,auxFiltroCompuestos[x])
+                auxFiltro=orAUX
                 
         else:
             if(len(auxFiltroCompuestos)==1):
