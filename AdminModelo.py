@@ -79,16 +79,17 @@ class AdminModelo:
         if(archivoDatos not in self.filtros):
             self.filtros[archivoDatos]=[]
         for l in lineas:
+            sacarSaltoDeLinea=l.split('\n')[0] #esto anda tenga o no un salto de linea
             if(len(l)<5): #chequeo que sea algun AND NOT OR
 
-                condCompuesta=l.split('\n')[0] #decodifico si es and or not
+                condCompuesta=sacarSaltoDeLinea #decodifico si es and or not
                 if(condCompuesta=='AND'):
                     AND.append(index)
                 if(condCompuesta=='OR'):
                     OR.append(index)
 
             else:
-                campo,condicion,valor=l.split('..')
+                campo,condicion,valor=sacarSaltoDeLinea.split('..')
                 auxFiltroSimples[index]=decodificarFiltro(campo,condicion,valor)
             index=index+1
 
@@ -128,9 +129,11 @@ class AdminModelo:
             print(x)
         '''
         if(len(auxFiltroCompuestos)>1): #solo hacer OR si existe mas de un filtro AND
-            for x in range(0,len(auxFiltroCompuestos),2):
-                auxFiltro=fil.FiltroOR(auxFiltroCompuestos[x],auxFiltroCompuestos[x+1])
-
+            auxFiltro=auxFiltroCompuestos[0]
+            for x in range(1,len(auxFiltroCompuestos)):
+                orAUX=fil.FiltroOR(auxFiltro,auxFiltroCompuestos[x])
+                auxFiltro=orAUX
+                
         else:
             if(len(auxFiltroCompuestos)==1):
                 auxFiltro=auxFiltroCompuestos[0]
