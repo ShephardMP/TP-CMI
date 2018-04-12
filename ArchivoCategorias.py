@@ -1,4 +1,5 @@
-
+# -*- coding: utf-8 -*-
+import io
 import Categoria as cat
 
 class ArchivoCategorias:
@@ -9,27 +10,23 @@ class ArchivoCategorias:
         self.categorias = []
         self.categoriasInvalidos = []
 
-        archivo = open(rutaArchivo)
-        while True:
-            lines = archivo.readline()
-            '''
-            LEE LA SIGUIENTE LINEA, ESTA FORMA PERMITE UN PROCESAMIENTO MAS RAPIDO
-            NO HAY QUE LEER TODO EL ARCHIVO DE UNA
-            '''
-            if not lines:
-                break
 
-            atributo,valorAsociado,keys = lines.split('..') #separa por los distintos campos de cada linea con ..
-            keys = keys.replace('\n', '') #para eliminar los saltos de linea
-            claves = keys.split(',') #las claves de cada categoria se separan por ,
+        with io.open(rutaArchivo, "r", encoding="utf-8") as archivo:
+            lines = archivo.readlines()
+            print(lines)
 
-            if (valorAsociado == 'invalid'):
-                categoriaInvalida = cat.Categoria(atributo, 'nan', claves) #si es invalid, se le pone 'nan' de valor asociado
-                self.categoriasInvalidos.append(categoriaInvalida)
-            else:
-                categoriaNueva = cat.Categoria(atributo, valorAsociado, claves)
-                self.categorias.append(categoriaNueva)
 
-        archivo.close()
+            for line in lines:
+                atributo,valorAsociado,keys = line.split('..') #separa por los distintos campos de cada linea con ..
+                keys = keys.replace('\n', '') #para eliminar los saltos de linea
+                claves = keys.split(',') #las claves de cada categoria se separan por ,
+
+                if (valorAsociado == 'invalid'):
+                    categoriaInvalida = cat.Categoria(atributo, 'nan', claves) #si es invalid, se le pone 'nan' de valor asociado
+                    self.categoriasInvalidos.append(categoriaInvalida)
+                else:
+                    categoriaNueva = cat.Categoria(atributo, valorAsociado, claves)
+                    self.categorias.append(categoriaNueva)
+
 
         return self.categorias, self.categoriasInvalidos
