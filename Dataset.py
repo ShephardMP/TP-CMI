@@ -16,15 +16,15 @@ class Dataset:
     def cargarDatos(self, cargadorDatos, nombreArchivo): #Dado un cargador de datos que devuelva un Dataframe y un archivo, lo guarda como nuevo dataset
         self.ds = cargadorDatos.cargarArchivo(nombreArchivo)
         self.nombre=nombreArchivo.split('/')[-1] #nombre archivo
-  
+
 
     def getNombre(self):
         return self.nombre
-    
+
     def setNombre(self,nombre):
         self.nombre=nombre
-        
-        
+
+
     def cargarDataframe(self, dataframe): #Carga el dataframe enviado como parámetro
         self.ds = dataframe
 
@@ -37,7 +37,7 @@ class Dataset:
         out.cargarDataframe(self.ds.copy(deep=True))
         out.setNombre(self.nombre)
         return out
-    
+
     def mergeCon(self, otroDataset, clave=None,left_on=None,right_on=None, forma='inner',sufijoX='_x',sufijoY='_y'):
         if(clave is not None):
             self.ds = self.getMerge(otroDataset, clave, forma).datos()
@@ -89,41 +89,46 @@ class Dataset:
         #self.ds=self.ds[self.ds.fecha_ingreso.groupby(datasetAlumnos.legajo).apply(lambda x: x is not None and x==x.min())]
 
         self.ds=self.ds[self.ds[columna].groupby(self.ds[agrupamiento]).apply(funcion)]
-        
+
     def toArray(self):
         return self.ds.values
-    
+
     def nombresColumnas(self):
         return list(self.ds.columns.values)
-    
+
     def getFila(self, index):
         fila = self.ds.ix[index]
         salida = []
         for i in range(0, len(fila)):
             salida.append(fila[i])
         return salida
-    
+
     def cantidadFilas(self):
         return len(self.ds.index)
-    
-    def sacarNaN(self,axis=0,how='any'): 
+
+    def sacarNaN(self,axis=0,how='any'):
         #axis =0 es filas, how puede ser any o all
         self.ds=self.ds.dropna(axis,how)
-    
+
     def cambiarColumnaAString(self,columna):
         self.ds[columna]= self.ds[columna].apply(str)
-    
+
+    def cambiarColumnaANumerica(self, columna, errors = 'coerce'):
+        #errors = 'coerce' es para que los valores que no puede convertir los deje como nan
+        #también podría tener valor 'ignore' o 'raise'
+        self.ds[columna]= self.ds[columna].apply(pandas.to_numeric, errors = errors)
+
     def columnaNumerica(self,columna):
         return is_numeric_dtype(self.ds[columna])
-    
+
     def reemplazarNombreColumna(self,NombreViejo,NombreNuevo):
-        
+
         self.ds.columns=[NombreNuevo if x==NombreViejo else x for x in self.ds.columns]
-    
+
     def agregarPrefijoNombresColumnas(self,prefijo):
         #le cambia el nombre a todas las columnas poniendo un prefijo
         self.ds.columns=[prefijo+x for x in self.ds.columns]
-        
+
 if __name__ == '__main__':
     import numpy as np
     df=Dataset()
