@@ -10,7 +10,6 @@ class ArchivoFiltros:
                 valorInstanciado=int(valor)
             else:
                 valorInstanciado=str(valor)
-                dataset.cambiarColumnaAString(campo)
             if(cond == '>'):
                 return fil.FiltroMayor(campo,valorInstanciado)
             elif (cond == '<'):
