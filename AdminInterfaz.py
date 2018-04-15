@@ -14,11 +14,14 @@ class AdminInterfaz:
 
     #SE ESPERA QUE SEAN STRINGS CON EL PATH A LSO ARCHIVOS DE DATOS
     adminModelo=None
+    mw = None
 
     def __init__(self,referenciaAdminModelo=None):
         self.adminModelo=referenciaAdminModelo
         mainWindow.vp_start_gui(self)
 
+    def setMainWindow(self, mainwindow):
+        self.mw = mainwindow
 
     def mostrarDatos(self, nombreArchivo):
 
@@ -56,20 +59,9 @@ class AdminInterfaz:
 
 
 
+
     def configurarCluster(self, cantClusters = 4):
-       
-     
-        
-            
-       
-        '''
-        if(self.opcionesElegidas[self.opciones[0]]==self.opcionesElegidas[self.opciones[1]]):
-           self.opcionesElegidas[self.opciones[0]]=self.opcionesElegidas[self.opciones[0]]+'_x'
-           self.opcionesElegidas[self.opciones[1]]=self.opcionesElegidas[self.opciones[1]]+'_y'
-           '''
         self.adminModelo.configurarCluster(cantidadClusters = cantClusters)
-        #se abre la ventana que configura el merge del cluster
-        #VentanaMerge.vp_start_gui(self, self.mapArchivoYColumnas)
 
 
 
@@ -80,6 +72,14 @@ class AdminInterfaz:
         print ('end cluster')
 
 
+    def abrirVentanaMerge(self, nombresDatasetsAMergear):
+        datasetsAMergear = []
+        columnas = self.adminModelo.getNombresColumnasDatasets(nombresDatasetsAMergear)
+        VentanaMerge.vp_start_gui(self, columnas)
+
+    def realizarMerge(self, selecciones):
+        datasetMerge = self.adminModelo.hacerMergeDatasets(selecciones)
+        self.mw.agregarDataset(datasetMerge[1], datasetMerge[0]) # se manda el dataset y el nombre
 
 
     def mostrarArbol(self):

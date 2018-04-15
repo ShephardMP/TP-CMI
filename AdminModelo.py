@@ -32,14 +32,18 @@ class AdminModelo:
 
         nombreArch=rutaArchivo.split('/')[-1]
 
+
         self.datasets[rutaArchivo]=aux
+
         print(rutaArchivo)
         return aux
 
     def cargarFiltros(self,rutaArchivo=None,archivoDatos=None):
 
+
         archivoFiltros = archFil.ArchivoFiltros()
         filtro = archivoFiltros.cargar(rutaArchivo, self.datasets[archivoDatos]) #se obtiene el filtro
+
 
         self.datasets[archivoDatos].filtrar(filtro) #se filtra el dataset
 
@@ -94,53 +98,62 @@ class AdminModelo:
     def getDatasets(self):
         return self.datasets
 
+    def getNombresColumnasDatasets(self, nombresDatasets):
+        columnas = {}
+        for n in nombresDatasets:
+            for d in self.datasets:
+                nombreArchivo = d.split('/')[-1]
+                if (nombreArchivo == n):
+                    columnas[n] = self.datasets[d].nombresColumnas()
+        return columnas
+
+
+
     def hacerMergeDatasets(self, datosMerge):
+        if(len(datosMerge) != 2):
+            raise ValueError('Solo se pueden mergear 2 archivos')
 
+        ds1 = None #defino los datasets que voy a mergear
+        ds2 = None
+        columnas1 = None
+        columnas2 = None
+        nombre1 = '' #estas variables van a servir para renombrar las columnas con igual nombre
+        nombre2 = ''
 
-        if(len(self.datasets)<2):
-            raise ValueError('no se puede realizar merge de menos de un archivo')
-        dataMerge=None
-        counter=0
-        palabrasClavesAnt=None
-        palabrasClavesAct=None
-        for clave in self.datasets: #clave sería la ruta absoluta del archivo
-            nombreArchivo = clave.split('/')[-1] #obtengo sólo el nombre del archivo
-
-            if(counter == 0): #necesito el primer datasets para poder ir uniendo con los demas
-                dataMerge=self.datasets[clave].getCopia()
-                palabrasClavesAnt=datosMerge[nombreArchivo]
-
-
-            else:
-                if (datosMerge[nombreArchivo] != None):
-                    print  (datosMerge[nombreArchivo])
-                    palabrasClavesAct= datosMerge[nombreArchivo]
-
-                    dataMerge.mergeCon(self.datasets[clave], left_on=palabrasClavesAnt,right_on= palabrasClavesAct)
-                    palabrasClavesAnt=palabrasClavesAct
-
-                '''
-                este else se tendría que agregar solo si se quiere que, si
-                no se seleccionan columnas para hacer el merge, se haga por
-                todas las columnas en comun.
-
+        for ds in self.datasets:
+            nombreDataset = ds.split('/')[-1] #obtengo sólo el nombre del archivo
+            if nombreDataset in datosMerge:
+                if ds1 is None:
+                    ds1 = self.datasets[ds] #guardo el dataset1
+                    nombre1 = nombreDataset #su nombre
+                    columnas1 = datosMerge[nombreDataset] #y las columnas que quiero mergear
                 else:
-                    dataMerge.mergeCon(self.datasets[clave])
-                '''
-            counter += 1
+                    ds2 = self.datasets[ds]
+                    nombre2 = nombreDataset
+                    columnas2 = datosMerge[nombreDataset]
 
-        print (dataMerge.nombresColumnas())
+        ds1 = ds1.getCopia()
+        ds2 = ds2.getCopia()
 
-        self.merge=dataMerge
 
-        '''
-        solo testing
-        import test as test
-        test.vp_start_gui(dataMerge)
-        '''
 
-        return dataMerge
+        columnasRepetidas = list(set(ds1.nombresColumnas()) & set(ds2.nombresColumnas())) # todas las columnas repetidas de los datasets
+        columnasRepetidas = list(set(columnasRepetidas) - set(set(columnas1) | set(columnas2))) #elimino las columnas seleccionadas
+        for repetida in columnasRepetidas:
+            ds1.reemplazarNombreColumna(repetida, repetida + ' - ' + nombre1)
+            ds2.reemplazarNombreColumna(repetida, repetida + ' - ' + nombre2)
 
+
+        datasetMerge = ds1
+        datasetMergeNombre = nombre1 + ' + ' + nombre2
+        datasetMerge.mergeCon(ds2, left_on = columnas1, right_on = columnas2)
+
+        self.datasets[datasetMergeNombre] = datasetMerge #se guarda el nuevo dataset en el diccionario de datasets
+
+        return [datasetMergeNombre, datasetMerge] #retorna el nombre del nuevo dataset y el dataset mismo
+
+
+    
     def getDatasetMerge(self):
         if(self.merge is None):
             raise ValueError('no hay merges en adminModelo')

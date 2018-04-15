@@ -118,6 +118,7 @@ class Dataset:
         #también podría tener valor 'ignore' o 'raise'
         self.ds[columna]= self.ds[columna].apply(pandas.to_numeric, errors = errors)
 
+
     def columnaNumerica(self,columna):
         return is_numeric_dtype(self.ds[columna])
 
