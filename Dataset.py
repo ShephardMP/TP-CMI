@@ -113,6 +113,12 @@ class Dataset:
     def cambiarColumnaAString(self,columna):
         self.ds[columna]= self.ds[columna].apply(str)
 
+    def cambiarColumnaANumerica(self, columna, errors = 'coerce'):
+        #errors = 'coerce' es para que los valores que no puede convertir los deje como nan
+        #también podría tener valor 'ignore' o 'raise'
+        self.ds[columna]= self.ds[columna].apply(pandas.to_numeric, errors = errors)
+
+
     def columnaNumerica(self,columna):
         return is_numeric_dtype(self.ds[columna])
 
