@@ -9,67 +9,195 @@ import CargadorDatos as cd
 import Filtro as fil
 import Categoria as cat
 import ClusterGenerator as clustGen
-import ArchivoCategorias as archCat
-import ArchivoFiltros as archFil
-
-
 class AdminModelo:
     datasets = None
     #es una Map<> o diccionario, la idea es que pueda indexarlos de acuerdo a la ruta
     #por ejemplo si la ruta es alumnos.xls se puete dataset[alumnos]=data
+
+
+    filtros=None
     cargadorDefecto=None
+    categorias=None
+    categoriasInvalidos=None
     merge=None
     newCluster=None
-
     def __init__(self):
         self.datasets={}
+        self.filtros={}
+        self.categorias={}
         self.cargadorDefecto=cd.CargadorDatosExcel() #esto puede cambiarse tranquilamente
         self.newCluster=clustGen.ClusterKMeans()
+        self.categoriasInvalidos={}
 
     def cargarDatos(self,rutaArchivo):
         aux=ds.Dataset()
         aux.cargarDatos(self.cargadorDefecto, rutaArchivo)
-
+        
         nombreArch=rutaArchivo.split('/')[-1]
+        
+        #nombreArch=nombreArch+'_'
+        #aux.agregarPrefijoNombresColumnas(nombreArch)
 
         self.datasets[rutaArchivo]=aux
+
+
+
         print(rutaArchivo)
         return aux
+        #dataset.eliminarPorGrupo('fecha_ingreso','legajo',lambda x: x is not None and x==x.min())
 
     def cargarFiltros(self,rutaArchivo=None,archivoDatos=None):
 
-        archivoFiltros = archFil.ArchivoFiltros()
-        filtro = archivoFiltros.cargar(rutaArchivo, self.datasets[archivoDatos]) #se obtiene el filtro
+        def decodificarFiltro(campo,cond,valor):
+            #self.datasets[archivoDatos].cambiarColumnaAString(campo) #para homogeneizar los tipos de datos
+            #print ("TIPO",self.datasets[archivoDatos].columnaNumerica(campo))
+            valorInstanciado=None
+            if(self.datasets[archivoDatos].columnaNumerica(campo)):
+                valorInstanciado=int(valor)
+            else:
+                valorInstanciado=str(valor)
+            if(cond == '>'):
+                return fil.FiltroMayor(campo,valorInstanciado)
+            elif (cond == '<'):
+                return fil.FiltroMenor(campo,valorInstanciado)
+            elif (cond== '='):
+                return fil.FiltroIgual(campo,valorInstanciado)
+            elif (cond=='!='):
+                return fil.FiltroNoIgual(campo,valorInstanciado)
+            else:
+                raise ValueError('condicion no es un simbolo valido: < > =')
 
-        self.datasets[archivoDatos].filtrar(filtro) #se filtra el dataset
+
+       # self.filtros=fil.FiltroAND(fil.FiltroMayor('fecha_ingreso','2015-01-01'),fil.FiltroMenor('fecha_ingreso','2017-12-12'))
+        arch=open(rutaArchivo)
+        lineas=arch.readlines()
+        auxFiltro=None
+        auxFiltroSimples={} #esto es un diccionario/mapa, la posta es que en la linea que aparece en el archivo hay un filtro
+        #se puede dar la situacion que haya un NOT en la linea 2, y un filtro en la linea 3. luego por ser diccionario se puede conseguir facil ese filtro con la clave 3 y aplicarle el not
+        auxFiltroCompuestos=[]
+        OR=[]
+        AND=[]# esta es una lista con indices, si en la lista aparece un 1, hay que hacer un and entre el filtro en la linea - y el filtro en la linea 2
+        index=0
+        if(archivoDatos not in self.filtros):
+            self.filtros[archivoDatos]=[]
+        for l in lineas:
+            sacarSaltoDeLinea=l.split('\n')[0] #esto anda tenga o no un salto de linea
+            if(len(l)<5): #chequeo que sea algun AND NOT OR
+
+                condCompuesta=sacarSaltoDeLinea #decodifico si es and or not
+                if(condCompuesta=='AND'):
+                    AND.append(index)
+                if(condCompuesta=='OR'):
+                    OR.append(index)
+
+            else:
+                campo,condicion,valor=sacarSaltoDeLinea.split('..')
+                auxFiltroSimples[index]=decodificarFiltro(campo,condicion,valor)
+            index=index+1
+
+        
+        indexCompuesto=-1
+        simplesCubiertos=[]
+        '''
+        print ("AND",AND)
+        print ("OR",OR)
+        '''
+        for x in range(0,index):
+            print("x",x)
+            if(x in AND):
+                if((x-2)>0 and ((x-2) in AND)): #la operacion anterior era AND, debo hacer seguir la cadena
+                    auxFiltroCompuestos[indexCompuesto]=fil.FiltroAND(auxFiltroCompuestos[indexCompuesto],auxFiltroSimples[x+1])
+                    
+                else:
+                    auxFiltroCompuestos.append(fil.FiltroAND(auxFiltroSimples[x-1],auxFiltroSimples[x+1]))
+                    simplesCubiertos.append(x-1)
+                    indexCompuesto=indexCompuesto+1
+                simplesCubiertos.append(x+1) #por el if o por el else
+           
+        transformarACompuesto=[]
+        for x in range(0,index):
+            if (x not in simplesCubiertos and x not in AND and x not in OR):
+                transformarACompuesto.append(x)
+                
+        
+        for x in transformarACompuesto:
+            #esto es porque pueden quedar algunos filtros aislados por operadores OR, si los hago compuestos entonces se hace el filtro automaticamente
+            auxFiltroCompuestos.append(auxFiltroSimples[x])
+                
+        '''
+        for x in AND:
+          
+                auxFiltroCompuestos.append(fil.FiltroAND(auxFiltroSimples[x-1],auxFiltroSimples[x+1]))
+            print(x)
+        '''
+        if(len(auxFiltroCompuestos)>1): #solo hacer OR si existe mas de un filtro AND
+            auxFiltro=auxFiltroCompuestos[0]
+            for x in range(1,len(auxFiltroCompuestos)):
+                orAUX=fil.FiltroOR(auxFiltro,auxFiltroCompuestos[x])
+                auxFiltro=orAUX
+                
+        else:
+            if(len(auxFiltroCompuestos)==1):
+                auxFiltro=auxFiltroCompuestos[0]
+                
+            else:
+                auxFiltro=list(auxFiltroSimples.values())[0] #values retorna dict_values, que es una view, no una lista, por lo que hay que hacer la ista con list()
+                
+
+        self.filtros[archivoDatos]=auxFiltro
+
+
+        arch.close()
+
+        self.datasets[archivoDatos].filtrar(self.filtros[archivoDatos])
 
         return self.datasets[archivoDatos] #para visualizar los datos cambiados
 
-
-
     def cargarCategorias(self,rutaArchivo,archivoDatos=None):
 
-        archivoCategorias = archCat.ArchivoCategorias()
-        categorias, invalidas = archivoCategorias.cargar(rutaArchivo)
+        nuevosInvalidos=False
+        #hay que hacer una logica para trabajar sobre archivos
+        archivo = open(rutaArchivo)
+        if (archivoDatos not in self.categorias):
+            self.categorias[archivoDatos]=[]
+            self.categoriasInvalidos[archivoDatos]=[]
 
-        for categoria in categorias:
-            atributo = categoria.getNombreAtributo()
-            valor = categoria.getValorAsociado()
-            keys = categoria.getKeys()
-            self.datasets[archivoDatos].columnaToUpper(atributo)
-            self.datasets[archivoDatos].reemplazarValores(atributo, keys, valor)
 
-        for categoria in invalidas:
-            atributo = categoria.getNombreAtributo()
-            valor = categoria.getValorAsociado()
-            keys = categoria.getKeys()
-            self.datasets[archivoDatos].columnaToUpper(atributo)
-            self.datasets[archivoDatos].reemplazarValores(atributo, keys, valor)
-            self.datasets[archivoDatos].eliminarValoresInvalidos(atributo, 'nan')
+        while True:
+            lines = archivo.readline()
+
+            #LEE LA SIGUIENTE LINEA, ESTA FORMA PERMITE UN PROCESAMIENTO MAS RAPIDO
+            #NO HAY QUE LEER TODO EL ARCHIVO DE UNA
+            if not lines:
+                break
+
+            atributo,valorAsociado,keys = lines.split('..') #separa por los distintos campos de cada linea con ..
+            keys = keys.replace('\n', '') #para eliminar los saltos de linea
+            claves = keys.split(',') #las claves de cada categoria se separan por ,
+            if (valorAsociado == 'invalid'):
+                nuevosInvalidos=True
+                for c in claves:
+                    self.categoriasInvalidos[archivoDatos].append(c)
+
+            else:
+
+                categoriaNueva = cat.Categoria(atributo, valorAsociado, claves)
+                self.categorias[archivoDatos].append(categoriaNueva)
+
+
+        archivo.close()
+
+        auxCategorias=self.categorias[archivoDatos] #obtengo las categorias asociadas a ese archivo
+        atr=auxCategorias[-1].getNombreAtributo() #por ejemplo 'titulo_secundario', esto tomo siempre el ultimo, asi que guarda de mezclar categorias en un mismo archivo
+        self.datasets[archivoDatos].columnaToUpper(atr) #la categoria afecta a esto
+        for i,item in enumerate(auxCategorias):   #tambien creo que se puede el elemento directo
+            self.datasets[archivoDatos].reemplazarValores(atr,auxCategorias[i].getKeys(), auxCategorias[i].getValorAsociado())
+
+        if(nuevosInvalidos==True):
+            self.datasets[archivoDatos].reemplazarValores(atr, self.categoriasInvalidos[archivoDatos], 'nan')
+            self.datasets[archivoDatos].eliminarValoresInvalidos( atr, 'nan')
 
         return self.datasets[archivoDatos] #agregado para que puedan verse los cambios
-
-
 
     def configurarCluster(self, cantidadClusters = 8, iteraciones = 10):
         self.newCluster.setParametros(numClusters = cantidadClusters, initIteraciones = iteraciones)
@@ -107,13 +235,13 @@ class AdminModelo:
             if(counter == 0): #necesito el primer datasets para poder ir uniendo con los demas
                 dataMerge=self.datasets[clave].getCopia()
                 palabrasClavesAnt=datosMerge[nombreArchivo]
-
+               
 
             else:
                 if (datosMerge[nombreArchivo] != None):
                     print  (datosMerge[nombreArchivo])
                     palabrasClavesAct= datosMerge[nombreArchivo]
-
+                    
                     dataMerge.mergeCon(self.datasets[clave], left_on=palabrasClavesAnt,right_on= palabrasClavesAct)
                     palabrasClavesAnt=palabrasClavesAct
 
@@ -126,17 +254,17 @@ class AdminModelo:
                     dataMerge.mergeCon(self.datasets[clave])
                 '''
             counter += 1
-
+            
         print (dataMerge.nombresColumnas())
-
+       
         self.merge=dataMerge
-
+        
         '''
         solo testing
         import test as test
         test.vp_start_gui(dataMerge)
         '''
-
+        
         return dataMerge
 
     def getDatasetMerge(self):
