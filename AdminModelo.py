@@ -27,16 +27,20 @@ class AdminModelo:
         self.newCluster=clustGen.ClusterKMeans()
 
     def cargarDatos(self,rutaArchivo):
-        aux=ds.Dataset()
-        aux.cargarDatos(self.cargadorDefecto, rutaArchivo)
+        dataset=ds.Dataset()
+        dataset.cargarDatos(self.cargadorDefecto, rutaArchivo)
 
-        nombreArch=rutaArchivo.split('/')[-1]
+        n = 1
+        while rutaArchivo in self.datasets:
+            if (n > 1):
+                rutaArchivo = rutaArchivo[0 : -4]
+            rutaArchivo = rutaArchivo + '(' + str(n) + ')'
+            dataset.setNombre(rutaArchivo.split('/')[-1])
+            n = n + 1
 
-
-        self.datasets[rutaArchivo]=aux
-
-        print(rutaArchivo)
-        return aux
+        self.datasets[rutaArchivo]=dataset
+        print(self.datasets[rutaArchivo].getNombre())
+        return dataset, rutaArchivo
 
     def cargarFiltros(self,rutaArchivo=None,archivoDatos=None):
 
@@ -60,7 +64,7 @@ class AdminModelo:
             atributo = categoria.getNombreAtributo()
             valor = categoria.getValorAsociado()
             keys = categoria.getKeys()
-            self.datasets[archivoDatos].cambiarColumnaAString(atributo)  
+            self.datasets[archivoDatos].cambiarColumnaAString(atributo)
             #sea el tipo que sea la columna la transforma a String, sea numero o string o datetime
             self.datasets[archivoDatos].columnaToUpper(atributo)
             self.datasets[archivoDatos].reemplazarValores(atributo, keys, valor)
@@ -69,7 +73,7 @@ class AdminModelo:
             atributo = categoria.getNombreAtributo()
             valor = categoria.getValorAsociado()
             keys = categoria.getKeys()
-            self.datasets[archivoDatos].cambiarColumnaAString(atributo)  
+            self.datasets[archivoDatos].cambiarColumnaAString(atributo)
             self.datasets[archivoDatos].columnaToUpper(atributo)
             self.datasets[archivoDatos].reemplazarValores(atributo, keys, valor)
             self.datasets[archivoDatos].eliminarValoresInvalidos(atributo, 'nan')
@@ -156,7 +160,7 @@ class AdminModelo:
         return [datasetMergeNombre, datasetMerge] #retorna el nombre del nuevo dataset y el dataset mismo
 
 
-    
+
     def getDatasetMerge(self):
         if(self.merge is None):
             raise ValueError('no hay merges en adminModelo')
