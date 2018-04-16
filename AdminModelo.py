@@ -76,7 +76,7 @@ class AdminModelo:
             self.datasets[archivoDatos].cambiarColumnaAString(atributo)
             self.datasets[archivoDatos].columnaToUpper(atributo)
             self.datasets[archivoDatos].reemplazarValores(atributo, keys, valor)
-            self.datasets[archivoDatos].eliminarValoresInvalidos(atributo, 'nan')
+            self.datasets[archivoDatos].eliminarValoresInvalidos(atributo, 'NAN')
 
         return self.datasets[archivoDatos] #agregado para que puedan verse los cambios
 
