@@ -70,7 +70,7 @@ class Ventana_principal:
     def botonArchivos(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
-            dataset = self.adminInterfaz.cargarDatos(ruta)
+            dataset, ruta = self.adminInterfaz.cargarDatos(ruta)
             #se agrega la tabla del dataset cargado
             tablaDibujada = self.DibujarTabla(dataset)
             self.tabs.append(ruta)
@@ -104,41 +104,41 @@ class Ventana_principal:
         if(ruta is not None and ruta is not ''):
             aux=self.adminInterfaz.cargarCategorias(ruta, self.tabActiva)
             tablaDibujada=self.DibujarTabla(aux)
-            
+
             #a continuacion lo que se hace es eliminar la tabla dibujada anterior para reemplazarla con una nueva
             #esta nueva tabla tiene los cambios presentados al cargar las nuevas categorias
             #podria hacerse que tablas fuera un diccionario para hacerlo mas eficiente
             #el costo se espera O(n), se considera que es insignificante
             auxRuta=self.tabActiva.split('/')[-1]
-            for i in self.tablas: 
+            for i in self.tablas:
                 #self tablas es una lista de listas, si auxRuta (la version acotada del archivo)
                 #se encuentra en una de esas listas entonces hay que actualizar el dibujo
                 if auxRuta in i:
                     self.tablas.remove(i)
                     self.tablas.append([auxRuta,tablaDibujada])
                     break
-                    
+
     def botonFiltros(self):
         ruta=askopenfilename()
         if(ruta is not None and ruta is not ''):
             aux =self.adminInterfaz.cargarFiltros(ruta, self.tabActiva)
             tablaDibujada=self.DibujarTabla(aux)
-            
+
             #idem botonCategorias
             auxRuta=self.tabActiva.split('/')[-1]
-            for i in self.tablas: 
+            for i in self.tablas:
                 if auxRuta in i:
                     self.tablas.remove(i)
                     self.tablas.append([auxRuta,tablaDibujada])
                     break
-            
+
 
     def botonCluster(self):
         self.adminInterfaz.abrirVentanaCluster(self.tabActiva)
-        
+
        #le mando la tab activa para hacer clustering, se espera que se elija la del merge de datasets
        #de caso contrario el usuario vera un arhivo que no espera y lo puede solucionar tranquilamente
-        
+
     def botonArbol(self):
         self.DibujarTabla(self.adminInterfaz.__test__())
 
