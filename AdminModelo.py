@@ -60,6 +60,8 @@ class AdminModelo:
             atributo = categoria.getNombreAtributo()
             valor = categoria.getValorAsociado()
             keys = categoria.getKeys()
+            self.datasets[archivoDatos].cambiarColumnaAString(atributo)  
+            #sea el tipo que sea la columna la transforma a String, sea numero o string o datetime
             self.datasets[archivoDatos].columnaToUpper(atributo)
             self.datasets[archivoDatos].reemplazarValores(atributo, keys, valor)
 
@@ -67,6 +69,7 @@ class AdminModelo:
             atributo = categoria.getNombreAtributo()
             valor = categoria.getValorAsociado()
             keys = categoria.getKeys()
+            self.datasets[archivoDatos].cambiarColumnaAString(atributo)  
             self.datasets[archivoDatos].columnaToUpper(atributo)
             self.datasets[archivoDatos].reemplazarValores(atributo, keys, valor)
             self.datasets[archivoDatos].eliminarValoresInvalidos(atributo, 'nan')
