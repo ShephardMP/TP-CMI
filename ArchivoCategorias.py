@@ -11,7 +11,7 @@ class ArchivoCategorias:
         self.categoriasInvalidos = []
 
 
-        with io.open(rutaArchivo, "r", encoding="utf-8") as archivo:
+        with io.open(rutaArchivo, "r") as archivo:
             lines = archivo.readlines()
             print(lines)
 
@@ -22,7 +22,7 @@ class ArchivoCategorias:
                 claves = keys.split(',') #las claves de cada categoria se separan por ,
 
                 if (valorAsociado == 'invalid'):
-                    categoriaInvalida = cat.Categoria(atributo, 'nan', claves) #si es invalid, se le pone 'nan' de valor asociado
+                    categoriaInvalida = cat.Categoria(atributo, 'NAN', claves) #si es invalid, se le pone 'nan' de valor asociado
                     self.categoriasInvalidos.append(categoriaInvalida)
                 else:
                     categoriaNueva = cat.Categoria(atributo, valorAsociado, claves)

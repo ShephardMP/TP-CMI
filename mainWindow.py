@@ -11,6 +11,7 @@ import mainWindow_support
 
 import TablaInterfaz as TI
 
+
 from tkinter.filedialog import askopenfilename
 
 try:
@@ -101,6 +102,7 @@ class Ventana_principal:
 
     def botonCategorias(self):
         ruta=askopenfilename()
+        
         if(ruta is not None and ruta is not ''):
             aux=self.adminInterfaz.cargarCategorias(ruta, self.tabActiva)
             tablaDibujada=self.DibujarTabla(aux)
@@ -110,28 +112,29 @@ class Ventana_principal:
             #podria hacerse que tablas fuera un diccionario para hacerlo mas eficiente
             #el costo se espera O(n), se considera que es insignificante
             auxRuta=self.tabActiva.split('/')[-1]
-            for i in self.tablas:
+            for tabla in self.tablas:
                 #self tablas es una lista de listas, si auxRuta (la version acotada del archivo)
                 #se encuentra en una de esas listas entonces hay que actualizar el dibujo
-                if auxRuta in i:
-                    self.tablas.remove(i)
-                    self.tablas.append([auxRuta,tablaDibujada])
+                if auxRuta in tabla[0]:
+                    tabla[1]=tablaDibujada
                     break
 
     def botonFiltros(self):
         ruta=askopenfilename()
+        
         if(ruta is not None and ruta is not ''):
             aux =self.adminInterfaz.cargarFiltros(ruta, self.tabActiva)
             tablaDibujada=self.DibujarTabla(aux)
 
             #idem botonCategorias
             auxRuta=self.tabActiva.split('/')[-1]
-            for i in self.tablas:
-                if auxRuta in i:
-                    self.tablas.remove(i)
-                    self.tablas.append([auxRuta,tablaDibujada])
+            for tabla in self.tablas:
+                if auxRuta in tabla[0]:
+                    tabla[1]=tablaDibujada
                     break
+                    
 
+            
 
     def botonCluster(self):
         self.adminInterfaz.abrirVentanaCluster(self.tabActiva)
@@ -143,15 +146,18 @@ class Ventana_principal:
         self.DibujarTabla(self.adminInterfaz.__test__())
 
     def mostrarTablaPorTab(self,nombreTabla):
+        
         if(len(self.mapaRutas)>1):
             self.tabActiva=self.mapaRutas[nombreTabla]
-            for tabla in self.tablas:
+            for tabla in self.tablas:  #por cada lista se fija el nombre de la tabla para que coincida con la tab activa
                 if tabla[0] != nombreTabla:
                     tabla[1].place(x=10000, y=150, anchoPix= 960)
+                   
                 else:
+                    tabla[1]=self.DibujarTabla(self.adminInterfaz.obtenerDataset(self.tabActiva))
                     tabla[1].place(x=10, y=150, anchoPix= 960)
                     self.tablaActual = tabla[1]
-
+                   
 
 
     def hacerMergeTablas(self):
