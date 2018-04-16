@@ -42,8 +42,8 @@ class ClusterKMeans(ClusterGenerator):
          cluster.scatter(data[:, 0], data[:, 1],c=prediccion, s=50)
          
          cluster.set(xlabel=etiquetaX, ylabel=etiquetaY)
-         auxX=[x for x in range (0,int(max(data[:, 0]))+1)]
-         auxY=[x for x in range (0,int(max(data[:, 1]))+1)]
+         auxX=[x for x in range (int(min(data[:, 0])),int(max(data[:, 0]))+1)]
+         auxY=[x for x in range (int(min(data[:, 1])),int(max(data[:, 1]))+1)]
          matplotlib.pyplot.xticks(auxX) #establece que el x vaya de 0 al rango establecido
          matplotlib.pyplot.yticks(auxY)
          #plt.xticks(aux,etiquetasCategorias) mapea index del axis a las etiquetas de categorias
