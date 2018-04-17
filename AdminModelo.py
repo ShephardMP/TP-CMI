@@ -96,7 +96,7 @@ class AdminModelo:
         dataCluster.cambiarColumnaANumerica(columna1)
         dataCluster.cambiarColumnaANumerica(columna2)
         dataCluster.sacarNaN(0,'any') #por fila, y si algun elemento es nan
-        self.newCluster.generarCluster(dataCluster.toArray(),columna1,columna2)
+        return self.newCluster.generarCluster(dataCluster.toArray(),columna1,columna2)
 
 
     def getDataset(self,rutaClave):
