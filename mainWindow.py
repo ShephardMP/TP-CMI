@@ -116,6 +116,7 @@ class Ventana_principal:
                 #self tablas es una lista de listas, si auxRuta (la version acotada del archivo)
                 #se encuentra en una de esas listas entonces hay que actualizar el dibujo
                 if auxRuta in tabla[0]:
+                    tabla[1].place(x=10000, y=150, anchoPix= 960)
                     tabla[1]=tablaDibujada
                     break
 
@@ -130,6 +131,7 @@ class Ventana_principal:
             auxRuta=self.tabActiva.split('/')[-1]
             for tabla in self.tablas:
                 if auxRuta in tabla[0]:
+                    tabla[1].place(x=10000, y=150, anchoPix= 960)
                     tabla[1]=tablaDibujada
                     break
                     
@@ -146,7 +148,6 @@ class Ventana_principal:
         self.DibujarTabla(self.adminInterfaz.__test__())
 
     def mostrarTablaPorTab(self,nombreTabla):
-        
         if(len(self.mapaRutas)>1):
             self.tabActiva=self.mapaRutas[nombreTabla]
             for tabla in self.tablas:  #por cada lista se fija el nombre de la tabla para que coincida con la tab activa
@@ -154,7 +155,6 @@ class Ventana_principal:
                     tabla[1].place(x=10000, y=150, anchoPix= 960)
                    
                 else:
-                    tabla[1]=self.DibujarTabla(self.adminInterfaz.obtenerDataset(self.tabActiva))
                     tabla[1].place(x=10, y=150, anchoPix= 960)
                     self.tablaActual = tabla[1]
                    
