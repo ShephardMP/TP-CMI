@@ -56,7 +56,8 @@ class VentanaSeleccion:
     top=None
     def cerrar(self):
         self.top.destroy()
-
+        self.top.quit()  #esta linea es importantisima, sin esto literalmente no se limpia todo
+        #es decir, queda codigo ejecutando en segunda instancia
     def aceptarOpciones(self):
         
         for i in self.listbox.curselection():

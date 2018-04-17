@@ -20,6 +20,7 @@ class ClusterGenerator:
 from sklearn.cluster import KMeans
 import tkinter as tk
 import matplotlib.pyplot
+from matplotlib.figure import Figure
 #matplotlib.use('TkAgg') 
 class ClusterKMeans(ClusterGenerator):
     kmeans=None
@@ -33,23 +34,33 @@ class ClusterKMeans(ClusterGenerator):
         
     def generarCluster(self, data,etiquetaX='',etiquetaY=''): #Data deberia ser un array-like o 2D-array, cualquier cosa, pensar Data=numpy.random.rand(3,4)
          
-         #plt.scatter(data[:, 0], data[:, 1], s=50) 
+         
          self.kmeans.fit(data)
          prediccion=self.kmeans.predict(data)
-         
-         fig,cluster=matplotlib.pyplot.subplots() #crea nueva figura, otra ventana para renderizar el plot, no funciona dentro del IDE spyder a menos
-         #que se se configure una opcion
+         fig=Figure(figsize=(6,6))
+         #la idea es crear una figura con el cluster hecho pero no mostrarla todavia,
+         #este es el modelo, asi no incluyo nada de interfaz
+         #devuelvo una figura (o podria devolver un subplot) para que la interfaz decida 
+         #como se debe visualizar
+         cluster=fig.add_subplot(111)
          cluster.scatter(data[:, 0], data[:, 1],c=prediccion, s=50)
          
          cluster.set(xlabel=etiquetaX, ylabel=etiquetaY)
+         cluster.axis('tight')
+         
+         #cluster.axis('tight',xmin=int(min(data[:, 0])),ymin=int(min(data[:, 1])),xmax=int(max(data[:, 0]))+1,ymax=int(max(data[:, 1]))+1) #scaling para los ejes del plot
+         
+         #tight muestra toda la info posible. Cualquier cosa referir a:
+         # https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.axis.html#matplotlib.axes.Axes.axis
+         '''
          auxX=[x for x in range (int(min(data[:, 0])),int(max(data[:, 0]))+1)]
          auxY=[x for x in range (int(min(data[:, 1])),int(max(data[:, 1]))+1)]
-         matplotlib.pyplot.xticks(auxX) #establece que el x vaya de 0 al rango establecido
-         matplotlib.pyplot.yticks(auxY)
-         #plt.xticks(aux,etiquetasCategorias) mapea index del axis a las etiquetas de categorias
-         
-         matplotlib.pyplot.show(block=False) #muestra la figura
-         
+         cluster.set_xlim(auxX[0],auxX[1]) #establece el eje X a un rango 
+         cluster.set_ylim(auxY[0],auxY[1])
+        '''
+        
+         #fig.show() #muestra la figura
+         return fig    #retorno de tipo MATPLOTLIB.FIGURE
         
         
          

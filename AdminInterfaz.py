@@ -9,6 +9,7 @@ import mainWindow
 import VentanaSeleccion
 import AdminModelo
 import VentanaMerge
+import VentanaPloteo
 import Dataset as ds
 class AdminInterfaz:
 
@@ -68,8 +69,11 @@ class AdminInterfaz:
 
     def mostrarCluster(self, rutaArchivo):
         dataset = self.adminModelo.getDataset(rutaArchivo)
-        self.adminModelo.generarCluster(self.opcionesElegidas[0],self.opcionesElegidas[1],dataset)
-        print ('end cluster')
+        
+        figura=self.adminModelo.generarCluster(self.opcionesElegidas[0],self.opcionesElegidas[1],dataset)
+       
+        VentanaPloteo.vp_start_gui(figura)
+        
 
 
     def abrirVentanaMerge(self, nombresDatasetsAMergear):
