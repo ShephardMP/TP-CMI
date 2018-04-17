@@ -153,7 +153,8 @@ class AdminModelo:
 
         datasetMerge = ds1
         datasetMergeNombre = nombre1 + ' + ' + nombre2
-        datasetMerge.mergeCon(ds2, left_on = columnas1, right_on = columnas2)
+        datasetMerge.mergeCon(ds2, clave = list(set(set(columnas1) | set(columnas2))))
+        #datasetMerge.mergeCon(ds2, left_on = columnas1, right_on = columnas2)
 
         self.datasets[datasetMergeNombre] = datasetMerge #se guarda el nuevo dataset en el diccionario de datasets
 
