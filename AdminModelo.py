@@ -30,13 +30,7 @@ class AdminModelo:
         dataset=ds.Dataset()
         dataset.cargarDatos(self.cargadorDefecto, rutaArchivo)
 
-        n = 1
-        while rutaArchivo in self.datasets:
-            if (n > 1):
-                rutaArchivo = rutaArchivo[0 : -4]
-            rutaArchivo = rutaArchivo + '(' + str(n) + ')'
-            dataset.setNombre(rutaArchivo.split('/')[-1])
-            n = n + 1
+        rutaArchivo = self.obtenerNombreDatasetNoRepetido(rutaArchivo, dataset)
 
         self.datasets[rutaArchivo]=dataset
         print(self.datasets[rutaArchivo].getNombre())
@@ -152,8 +146,10 @@ class AdminModelo:
 
 
         datasetMerge = ds1
-        datasetMergeNombre = nombre1 + ' + ' + nombre2
+        datasetMergeNombre = nombre1 + '+' + nombre2
         datasetMerge.mergeCon(ds2, left_on = columnas1, right_on = columnas2)
+        
+        datasetMergeNombre = self.obtenerNombreDatasetNoRepetido(datasetMergeNombre, datasetMerge)
 
         self.datasets[datasetMergeNombre] = datasetMerge #se guarda el nuevo dataset en el diccionario de datasets
 
@@ -165,6 +161,16 @@ class AdminModelo:
         if(self.merge is None):
             raise ValueError('no hay merges en adminModelo')
         return self.merge
+    
+    def obtenerNombreDatasetNoRepetido(self, nombre, dataset):
+        n = 1
+        while nombre in self.datasets:
+            if (n > 1):
+                nombre = nombre[0 : -4]
+            nombre = nombre + '(' + str(n) + ')'
+            dataset.setNombre(nombre.split('/')[-1])
+            n = n + 1
+        return nombre
 
     def removeDataset(self,rutaClave):
         #es necesario limpiar la entrada del dataset y los filtros y categorias asociados
