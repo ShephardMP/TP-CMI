@@ -53,11 +53,14 @@ class VentanaSeleccion:
    
     
     resultados=None
+    
     top=None
     def cerrar(self):
         self.top.destroy()
         self.top.quit()  #esta linea es importantisima, sin esto literalmente no se limpia todo
         #es decir, queda codigo ejecutando en segunda instancia
+        
+   
     def aceptarOpciones(self):
         
         for i in self.listbox.curselection():
@@ -91,7 +94,7 @@ class VentanaSeleccion:
             [('selected', _compcolor), ('active',_ana2color)])
 
         top.geometry("600x400+608+384")
-        top.title("New Toplevel 1")
+        top.title("Seleccionar Columnas de Clustering")
         top.configure(background="#d9d9d9")
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
@@ -139,6 +142,7 @@ class VentanaSeleccion:
         self.top=top
       
         self.listbox=None
+       
         if(listColumnas is not None):
             
                     Label1 = Label(top)
@@ -157,6 +161,7 @@ class VentanaSeleccion:
                     self.listbox.configure(font="TkFixedFont")
                     self.listbox.configure(foreground="#000000")
                     self.listbox.configure(width=144)
+                    self.listbox.configure(exportselection=False) #permite mantener la seleccion aun despues de cambiar de widget
                     for columna in listColumnas:
                         self.listbox.insert(END, columna) #se inserta cada columnas en la listbox
                    
