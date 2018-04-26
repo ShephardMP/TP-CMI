@@ -110,7 +110,7 @@ class AdminModelo:
 
 
 
-    def hacerMergeDatasets(self, datosMerge):
+    def hacerMergeDatasets(self, datosMerge, tipoMerge = 'nombre'):
         if(len(datosMerge) != 2):
             raise ValueError('Solo se pueden mergear 2 archivos')
 
@@ -121,15 +121,15 @@ class AdminModelo:
         nombre1 = '' #estas variables van a servir para renombrar las columnas con igual nombre
         nombre2 = ''
 
-        for ds in self.datasets:
-            nombreDataset = ds.split('/')[-1] #obtengo sólo el nombre del archivo
+        for dataset in self.datasets:
+            nombreDataset = dataset.split('/')[-1] #obtengo sólo el nombre del archivo
             if nombreDataset in datosMerge:
                 if ds1 is None:
-                    ds1 = self.datasets[ds] #guardo el dataset1
+                    ds1 = self.datasets[dataset] #guardo el dataset1
                     nombre1 = nombreDataset #su nombre
                     columnas1 = datosMerge[nombreDataset] #y las columnas que quiero mergear
                 else:
-                    ds2 = self.datasets[ds]
+                    ds2 = self.datasets[dataset]
                     nombre2 = nombreDataset
                     columnas2 = datosMerge[nombreDataset]
 
@@ -148,7 +148,12 @@ class AdminModelo:
         datasetMerge = ds1
 
         datasetMergeNombre = nombre1 + '+' + nombre2
-        datasetMerge.mergeCon(ds2, clave = list(set(set(columnas1) | set(columnas2))))
+        if (tipoMerge == 'nombre'):
+            datasetMerge.mergeCon(ds2, clave = list(set(set(columnas1) | set(columnas2))))
+        elif (tipoMerge == 'posicion'):
+            datasetMerge.mergeCon(ds2, left_on = columnas1, right_on = columnas2)
+        else:
+            raise ValueError ("Error en el tipo de merge")
         
         datasetMergeNombre = self.obtenerNombreDatasetNoRepetido(datasetMergeNombre, datasetMerge)
 
