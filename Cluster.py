@@ -9,15 +9,17 @@ class Cluster:
     figura=None #de tipo matplotlib.figure
     diccionarioClustersYPuntos=None 
     diccionarioClustersYColores=None
+    
+    coefCorr=None
     #es un diccionario que tiene como clave el label del cluster 
     #(ej: cluster A) y la cantidad de puntos que tiene
-    def __init__(self, plot,diccLabelsXCantidadPuntos=None,diccLabelsXColores=None):
+    def __init__(self, plot,coefCorr,diccLabelsXCantidadPuntos=None,diccLabelsXColores=None):
         self.diccionarioClustersYColores={}
         self.diccionarioClustersYPuntos={}
         self.figura=plot #esta figura se mostraria haciendo self.plot = FigureCanvasTkAgg(self.figura, master=top) en una interfaz
         self.diccionarioClustersYPuntos=diccLabelsXCantidadPuntos
         self.diccionarioClustersYColores=diccLabelsXColores
-        
+        self.coefCorr=coefCorr
     def getFigura(self):
         return self.figura
     
@@ -35,4 +37,4 @@ class Cluster:
     def getClustersYColores(self):
         return self.diccionarioClustersYColores
     def getCorrelacion(self):
-        pass
+        return self.coefCorr
