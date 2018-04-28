@@ -22,13 +22,14 @@ import matplotlib
 #matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
+import Cluster as Cluster
 
 
-def vp_start_gui(figura=None):
+def vp_start_gui(cluster=None):
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = Tk()
-    top = VentanaPloteo (root,figura)
+    top = VentanaPloteo (root,cluster)
     ventanaPloteo_support.init(root, top)
     root.mainloop()
 
@@ -49,7 +50,8 @@ def destroy_VentanaPloteo():
 
 
 class VentanaPloteo:
-    
+    canv=None
+    mostrarPuntos=None
     def close(self):
         
         self.top.destroy()  #Este se encarga de limpiar los widgets pero no necesariamente termina la ejecucion del mainloop
@@ -58,7 +60,24 @@ class VentanaPloteo:
         #este es el caso del ploteo y el metodo draw(). Son metodos que pueden seguir interactuando con los widgets
         
         #aunque parezca contradictorio la union de estos dos metodos permite que termine la ventana correctamente
-    def __init__(self, top=None, figura=None):
+    
+    
+    
+    def setPuntos(self,cluster):
+        
+        labelsCont=cluster.getClustersYPuntos()
+        labelsColor=cluster.getClustersYColores()
+        posX=15
+        posY=150
+        
+        for k in labelsCont.keys():
+            texto='cluster '+ str(k) + ' : ' + str(labelsCont[k])
+            self.mostrarPuntos.create_oval(posX-15,posY-5,posX-5,posY+5,width=1,fill=labelsColor[k],outline=labelsColor[k]) #tienen la misma clave
+            self.mostrarPuntos.create_text(posX,posY,text=texto,anchor='w',font=('Arial',10))
+            
+            
+            posY+=20
+    def __init__(self, top=None, cluster=None):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -67,33 +86,51 @@ class VentanaPloteo:
         _ana1color = '#d9d9d9' # X11 color: 'gray85' 
         _ana2color = '#d9d9d9' # X11 color: 'gray85' 
         self.top=top
-        self.top.geometry("607x450+610+154")
+        self.top.geometry("888x450+268+250")
         self.top.title("VentanaPloteo")
-        self.top.configure(background="#d9d9d9")
-            
+        self.top.configure(background="white")
+        self.top.minsize(width=888, height=450)
 
-        '''
-        self.plot = Canvas(top)
-        self.plot.place(relx=0.0, rely=0.0, relheight=0.96, relwidth=0.97)
-        self.plot.configure(background="white")
-        self.plot.configure(borderwidth="2")
-        self.plot.configure(insertbackground="black")
-        self.plot.configure(relief=RIDGE)
-        self.plot.configure(selectbackground="#c4c4c4")
-        self.plot.configure(selectforeground="black")
-        self.plot.configure(width=586)
-'''
+        
+        self.canv = Canvas(top)
+        self.canv.place(relx=0.01, rely=0.02, relheight=0.96, relwidth=0.81)
+        self.canv.configure(background="white")
+        self.canv.configure(borderwidth="2")
+        self.canv.configure(insertbackground="black")
+        self.canv.configure(relief=RIDGE)
+        self.canv.configure(selectbackground="#c4c4c4")
+        self.canv.configure(selectforeground="black")
+        self.canv.configure(width=586)
 
+        self.mostrarPuntos = Canvas(top)
+        self.mostrarPuntos.place(relx=0.81, rely=0.02, relheight=0.96
+                , relwidth=0.18)
+        self.mostrarPuntos.configure(background="white")
+        self.mostrarPuntos.configure(borderwidth="0")
+        self.mostrarPuntos.configure(insertbackground="black")
+        
+     
+        self.mostrarPuntos.configure(relief=RIDGE)
+        self.mostrarPuntos.configure(selectbackground="#c4c4c4")
+        self.mostrarPuntos.configure(selectforeground="black")
+        self.mostrarPuntos.configure(width=256)
+        
+        self.mostrarPuntos.configure(highlightthickness=0)
+        self.mostrarPuntos.create_text(15,100,text="Cantidad de Puntos\n por cluster",anchor='w',justify='center', font=('Arial',12))
+        
+        self.setPuntos(cluster)
+        
         self.top.protocol("WM_DELETE_WINDOW",self.close)
         #protocol es una parte de la libreria tkinter, permite aplicar funcionalidad junto con el WINDOWS MANAGER
         #Aca, cuando apreto la X que cierra la ventana se ejecuta el metodo self.close
-        self.plot = FigureCanvasTkAgg(figura, master=top)
-        
+        self.plot = FigureCanvasTkAgg(cluster.getFigura(), master=top)
+        #print(cluster.getCantPuntos(0))
       
         
         toolbar = NavigationToolbar2TkAgg(self.plot, top) #es la barra de abajo de navegacion
         toolbar.update()
-        self.plot._tkcanvas.pack(side=TOP, fill=BOTH, expand=1) 
+        self.plot.get_tk_widget().pack(side=LEFT, fill=BOTH, expand=1) 
+        self.mostrarPuntos.pack(side=RIGHT,fill=BOTH,expand=0)
         #en realidad es Tkinter.TOP pero importe como from tkinter import * (esto podria ser una mala practica pero no afecta mucho en este modulo)
         self.plot.draw()
        
@@ -104,7 +141,17 @@ if __name__ == '__main__':
     ax=f.add_subplot(111)
     ax.scatter([1,2,3,2,7],[2,3,42,1,3])
     ax.axis(tight=True)
-    vp_start_gui(f)
+    dicc={1:43,2:542}
+    
+    #diccColores={1:'blue',2:'green'}
+    import numpy as np
+    import matplotlib.cm as cm
+    import matplotlib.colors as color
+    colormap = cm.rainbow(np.linspace(0, 1, 2))
+    print(color.to_hex(colormap[0]))
+    diccColores={1:color.to_hex(colormap[0]),2:color.to_hex(colormap[1])}
+    #diccColores={1:'blue',2:'green'}
+    vp_start_gui(Cluster.Cluster(f,dicc,diccColores))
    
 
 
