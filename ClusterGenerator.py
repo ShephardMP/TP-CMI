@@ -46,7 +46,7 @@ class ClusterKMeans(ClusterGenerator):
          puntosClusters={i: np.where(self.kmeans.labels_ == i)[0] for i in range(self.kmeans.n_clusters)} 
          #lo anterior crea un diccionar con el numero de cluster como clave y todos los puntos como contenido
          #i es clave y el np.where es una lista por comprension
-         #lo siguiente es una version mejorada que cuenta la cantidad de puntos de forma directa
+         #lo siguiente es un diccionario con los cluster y los puntos que tienen
          
          diccClustersXCantPuntos={i: sum(1 for x in puntosClusters[i]) for i in puntosClusters.keys()} 
          diccClustersXColores={}
@@ -94,7 +94,7 @@ class ClusterKMeans(ClusterGenerator):
         
          
          clusterGenerado=Cluster.Cluster(fig,correlacion,diccClustersXCantPuntos,diccClustersXColores)
-         return clusterGenerado    #retorno de tipo MATPLOTLIB.FIGURE
+         return clusterGenerado  
         
         
          
