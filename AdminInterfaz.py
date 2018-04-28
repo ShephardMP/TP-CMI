@@ -77,12 +77,11 @@ class AdminInterfaz:
 
 
     def abrirVentanaMerge(self, nombresDatasetsAMergear):
-        datasetsAMergear = []
         columnas = self.adminModelo.getNombresColumnasDatasets(nombresDatasetsAMergear)
         VentanaMerge.vp_start_gui(self, columnas)
 
-    def realizarMerge(self, selecciones):
-        datasetMerge = self.adminModelo.hacerMergeDatasets(selecciones)
+    def realizarMerge(self, selecciones, tipoMerge = 'nombre'):
+        datasetMerge = self.adminModelo.hacerMergeDatasets(selecciones, tipoMerge)
         self.mw.agregarDataset(datasetMerge[1], datasetMerge[0]) # se manda el dataset y el nombre
 
 

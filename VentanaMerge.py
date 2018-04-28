@@ -48,6 +48,7 @@ class VentanaMerge:
     adminInter = None
     top=None
 
+
     def botonAceptar(self):
         selecciones = {}
         for l in self.listboxes:
@@ -60,9 +61,13 @@ class VentanaMerge:
                 selecciones[l[0]]= columnas
             else:
                 selecciones[l[0]]= None
-        self.top.destroy()
-        self.adminInter.realizarMerge(selecciones)
 
+
+        self.adminInter.realizarMerge(selecciones, tipoMerge = 'nombre')
+        self.top.destroy()
+
+    def botonCancelar(self):
+        self.top.destroy()
 
 
     def __init__(self, top=None, adminInterfaz = None,  tablas=[]):
@@ -103,6 +108,8 @@ class VentanaMerge:
             listbox.configure(font="TkFixedFont")
             listbox.configure(foreground="#000000")
             listbox.configure(width=144)
+
+            tablas[k].sort(key=str.lower) #ordena las columnas por nombre
             for columna in tablas[k]:
                 listbox.insert(END, columna) #se inserta cada columnas en la listbox
             self.listboxes.append([k, listbox]) #se agrega a la lista de listboxes
@@ -111,7 +118,7 @@ class VentanaMerge:
 
 
         self.cancelar = Button(top)
-        self.cancelar.place(relx=0.52, rely=0.87, height=24, width=67)
+        self.cancelar.place(relx=0.56, rely=0.87, height=24, width=67)
         self.cancelar.configure(activebackground="#d9d9d9")
         self.cancelar.configure(activeforeground="#000000")
         self.cancelar.configure(background="#d9d9d9")
@@ -121,6 +128,7 @@ class VentanaMerge:
         self.cancelar.configure(highlightcolor="black")
         self.cancelar.configure(pady="0")
         self.cancelar.configure(text='''Cancelar''')
+        self.cancelar.configure(command=self.botonCancelar)
 
         self.aceptar = Button(top)
         self.aceptar.place(relx=0.78, rely=0.87, height=24, width=67)
@@ -135,6 +143,7 @@ class VentanaMerge:
         self.aceptar.configure(text='''Aceptar''')
         self.aceptar.configure(command=self.botonAceptar)
 
+
         self.Label6 = Label(top)
         self.Label6.place(relx=0.02, rely=0.03, height=21, width=286)
         self.Label6.configure(background="#d9d9d9")
@@ -148,4 +157,6 @@ class VentanaMerge:
 
 
 if __name__ == '__main__':
-    vp_start_gui()
+    admin = 1
+    tablas = []
+    vp_start_gui(admin, tablas)
