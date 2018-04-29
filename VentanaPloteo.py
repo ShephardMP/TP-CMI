@@ -86,10 +86,10 @@ class VentanaPloteo:
         _ana1color = '#d9d9d9' # X11 color: 'gray85' 
         _ana2color = '#d9d9d9' # X11 color: 'gray85' 
         self.top=top
-        self.top.geometry("888x450+268+250")
+        self.top.geometry("888x500+268+250")
         self.top.title("VentanaPloteo")
         self.top.configure(background="white")
-        self.top.minsize(width=888, height=450)
+        self.top.minsize(width=888, height=500)
 
         
         self.canv = Canvas(top)
@@ -116,8 +116,8 @@ class VentanaPloteo:
         self.mostrarPuntos.configure(width=256)
         
         self.mostrarPuntos.configure(highlightthickness=0)
-        self.mostrarPuntos.create_text(15,100,text="Cantidad de Puntos\n por cluster",anchor='w',justify='center', font=('Arial',12))
-        
+        self.mostrarPuntos.create_text(15,115,text="Cantidad de Puntos\n por cluster",anchor='w',justify='center', font=('Arial',12))
+        self.mostrarPuntos.create_text(15,80,text='Correlacion: ' + str(cluster.getCorrelacion()),anchor='w',justify='center', font=('Arial',12))
         self.setPuntos(cluster)
         
         self.top.protocol("WM_DELETE_WINDOW",self.close)
@@ -151,7 +151,7 @@ if __name__ == '__main__':
     print(color.to_hex(colormap[0]))
     diccColores={1:color.to_hex(colormap[0]),2:color.to_hex(colormap[1])}
     #diccColores={1:'blue',2:'green'}
-    vp_start_gui(Cluster.Cluster(f,dicc,diccColores))
+    vp_start_gui(Cluster.Cluster(f,0,dicc,diccColores))
    
 
 

@@ -46,7 +46,7 @@ class ClusterKMeans(ClusterGenerator):
          puntosClusters={i: np.where(self.kmeans.labels_ == i)[0] for i in range(self.kmeans.n_clusters)} 
          #lo anterior crea un diccionar con el numero de cluster como clave y todos los puntos como contenido
          #i es clave y el np.where es una lista por comprension
-         #lo siguiente es un diccionario con los cluster y los puntos que tienen
+         #lo siguiente es una version mejorada que cuenta la cantidad de puntos de forma directa
          
          diccClustersXCantPuntos={i: sum(1 for x in puntosClusters[i]) for i in puntosClusters.keys()} 
          diccClustersXColores={}
@@ -92,9 +92,9 @@ class ClusterKMeans(ClusterGenerator):
          cluster.set_ylim(auxY[0],auxY[1])
         '''
         
-         
-         clusterGenerado=Cluster.Cluster(fig,correlacion,diccClustersXCantPuntos,diccClustersXColores)
-         return clusterGenerado  
+         correlacionXY=float("{0:.5f}".format(correlacion[0,1])) #correlacion es una matriz de todo x con todo y, tiene 1 en la diagonal
+         clusterGenerado=Cluster.Cluster(fig,correlacionXY,diccClustersXCantPuntos,diccClustersXColores)
+         return clusterGenerado    #retorno de tipo MATPLOTLIB.FIGURE
         
         
          
