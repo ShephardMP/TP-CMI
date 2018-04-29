@@ -70,9 +70,9 @@ class AdminInterfaz:
     def mostrarCluster(self, rutaArchivo):
         dataset = self.adminModelo.getDataset(rutaArchivo)
         
-        figura=self.adminModelo.generarCluster(self.opcionesElegidas[0],self.opcionesElegidas[1],dataset)
+        cluster=self.adminModelo.generarCluster(self.opcionesElegidas[0],self.opcionesElegidas[1],dataset)
        
-        VentanaPloteo.vp_start_gui(figura)
+        VentanaPloteo.vp_start_gui(cluster)
         
 
 
