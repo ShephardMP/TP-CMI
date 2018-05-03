@@ -144,8 +144,8 @@ class Ventana_principal:
        #le mando la tab activa para hacer clustering, se espera que se elija la del merge de datasets
        #de caso contrario el usuario vera un arhivo que no espera y lo puede solucionar tranquilamente
 
-    def botonArbol(self):
-        self.DibujarTabla(self.adminInterfaz.__test__())
+
+
 
     def mostrarTablaPorTab(self,nombreTabla):
         if(len(self.mapaRutas)>1):
@@ -200,7 +200,6 @@ class Ventana_principal:
         self.CargarArchivo.configure(command=self.botonArchivos)
         self.CargarCategorias.configure(command=self.botonCategorias)
         self.cargarFiltros.configure(command=self.botonFiltros)
-        self.generarArbol.configure(command=self.botonArbol)
         self.generarCluster.configure(command=self.botonCluster)
         self.botonMerge.configure(command=self.hacerMergeTablas)
 
@@ -305,17 +304,7 @@ class Ventana_principal:
         self.generarCluster.configure(text='''Ver Cluster''')
         self.generarCluster.configure(width=137)
 
-        self.generarArbol = Button(top)
-        self.generarArbol.place(relx=0.65, rely=0.84, height=104, width=137)
-        self.generarArbol.configure(activebackground="#d9d9d9")
-        self.generarArbol.configure(activeforeground="#000000")
-        self.generarArbol.configure(background="#d9d9d9")
-        self.generarArbol.configure(disabledforeground="#a3a3a3")
-        self.generarArbol.configure(foreground="#000000")
-        self.generarArbol.configure(highlightbackground="#d9d9d9")
-        self.generarArbol.configure(highlightcolor="black")
-        self.generarArbol.configure(pady="0")
-        self.generarArbol.configure(text='''Ver Arbol''')
+  
 
         self.botonMerge = Button(top)
         self.botonMerge.place(x=10, rely=0.84, height=30, width=100)
