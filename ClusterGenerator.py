@@ -19,12 +19,9 @@ class ClusterGenerator:
 "------------------------------------------------------------------------------------"
 from sklearn.cluster import KMeans
 
-import matplotlib.pyplot
-from matplotlib.figure import Figure
+
 import Cluster as Cluster
-import numpy as np
-import matplotlib.cm as cm
-import matplotlib.colors as color
+
 class ClusterKMeans(ClusterGenerator):
     kmeans=None
     
