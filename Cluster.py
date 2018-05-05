@@ -16,11 +16,11 @@ class Cluster:
     coefCorr=None
     distribucion=None
     cantClusters=None
-   
-    def __init__(self, datos,labelX=None,labelY=None,distribucion=None,numClusters=None):
+    centros=None
+    def __init__(self, datos,labelX=None,labelY=None,distribucion=None,numClusters=None,centros=None):
         self.data=datos #ya cambiados en base a una tecnica de clustering
         self.cantClusters=numClusters
-        
+        self.centros=centros
         self.diccionarioClustersYPuntos={}
         
         puntosClusters={i: np.where(distribucion == i)[0] for i in range(numClusters)} 
@@ -71,3 +71,6 @@ class Cluster:
     
     def getEtiquetaY(self):
         return self.labelY
+    
+    def getCenters(self):
+        return self.centros

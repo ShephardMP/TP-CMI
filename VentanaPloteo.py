@@ -138,7 +138,9 @@ class VentanaPloteo:
         fig=Figure(figsize=(6,6))
         
         plot=fig.add_subplot(111)
+        centers=cluster.getCenters()
         plot.scatter(data[:, 0], data[:, 1],c=colormap[cluster.getDistribucion()])
+        plot.scatter(centers[:, 0], centers[:, 1], marker="x", color='black')
         plot.set(xlabel=cluster.getEtiquetaX(), ylabel=cluster.getEtiquetaY())
         plot.axis('tight')
         self.plot = FigureCanvasTkAgg(fig, master=top)
@@ -172,7 +174,7 @@ if __name__ == '__main__':
     diccColores={1:color.to_hex(colormap[0]),2:color.to_hex(colormap[1])}
     
     #diccColores={1:'blue',2:'green'}
-    vp_start_gui(Cluster.Cluster(X,'x','y',[0,0,0,1,1,1],2)) #lo de distribucion es bardero hacerlo aca en main
+    vp_start_gui(Cluster.Cluster(X,'x','y',[0,0,0,1,1,1],2,np.array([[1,2],[1,2]]))) #lo de distribucion es bardero hacerlo aca en main
    
 
 

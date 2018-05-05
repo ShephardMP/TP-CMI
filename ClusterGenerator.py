@@ -21,7 +21,7 @@ from sklearn.cluster import KMeans
 
 
 import Cluster as Cluster
-
+import numpy as np
 class ClusterKMeans(ClusterGenerator):
     kmeans=None
     
@@ -41,7 +41,7 @@ class ClusterKMeans(ClusterGenerator):
          
         
          print('numClusters', self.kmeans.n_clusters)
-         clusterGenerado=Cluster.Cluster(data,etiquetaX,etiquetaY,self.kmeans.labels_,self.kmeans.n_clusters)
+         clusterGenerado=Cluster.Cluster(data,etiquetaX,etiquetaY,self.kmeans.labels_,self.kmeans.n_clusters,np.array(self.kmeans.cluster_centers_))
          
          
          
