@@ -144,7 +144,7 @@ class Ventana_principal:
        #le mando la tab activa para hacer clustering, se espera que se elija la del merge de datasets
        #de caso contrario el usuario vera un arhivo que no espera y lo puede solucionar tranquilamente
 
-  
+
 
     def mostrarTablaPorTab(self,nombreTabla):
         if(len(self.mapaRutas)>1):
@@ -199,7 +199,7 @@ class Ventana_principal:
         self.CargarArchivo.configure(command=self.botonArchivos)
         self.CargarCategorias.configure(command=self.botonCategorias)
         self.cargarFiltros.configure(command=self.botonFiltros)
-        
+
         self.generarCluster.configure(command=self.botonCluster)
         self.botonMerge.configure(command=self.hacerMergeTablas)
 
@@ -304,7 +304,7 @@ class Ventana_principal:
         self.generarCluster.configure(text='''Ver Cluster''')
         self.generarCluster.configure(width=137)
 
-     
+
 
         self.botonMerge = Button(top)
         self.botonMerge.place(x=10, rely=0.84, height=30, width=100)
