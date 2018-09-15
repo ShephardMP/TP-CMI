@@ -19,12 +19,9 @@ class ClusterGenerator:
 "------------------------------------------------------------------------------------"
 from sklearn.cluster import KMeans
 
-import matplotlib.pyplot
-from matplotlib.figure import Figure
+
 import Cluster as Cluster
 import numpy as np
-import matplotlib.cm as cm
-import matplotlib.colors as color
 class ClusterKMeans(ClusterGenerator):
     kmeans=None
     
@@ -39,62 +36,18 @@ class ClusterKMeans(ClusterGenerator):
          
          
          self.kmeans.fit(data)
-         prediccion=self.kmeans.predict(data)
-         
-         colormap = cm.rainbow(np.linspace(0, 1, self.kmeans.n_clusters))
-         
-         puntosClusters={i: np.where(self.kmeans.labels_ == i)[0] for i in range(self.kmeans.n_clusters)} 
-         #lo anterior crea un diccionar con el numero de cluster como clave y todos los puntos como contenido
-         #i es clave y el np.where es una lista por comprension
-         #lo siguiente es un diccionario con los cluster y los puntos que tienen
-         
-         diccClustersXCantPuntos={i: sum(1 for x in puntosClusters[i]) for i in puntosClusters.keys()} 
-         diccClustersXColores={}
-         
-         auxColor=0
-         for i in puntosClusters.keys():
-             diccClustersXColores[i]=color.to_hex(colormap[auxColor]) #transformo el color a hexadecimal para ser mas portable
-             auxColor+=1
-             #auxColor siempre esta entre 0 y n_clusters por lo que no hay errores de rango
-         
-         
-         fig=Figure(figsize=(6,6))
-         #la idea es crear una figura con el cluster hecho pero no mostrarla todavia,
-         #este es el modelo, asi no incluyo nada de interfaz
-         #devuelvo un Cluster() con una figura (o podria devolver un subplot) para que la interfaz decida 
-         #como se debe visualizar
+         prediccion=self.kmeans.predict(data) #esto es mas de colores
         
          
-       
         
-         plot=fig.add_subplot(111)
-         #labels=['cluster '+str(i) +': ' + str( diccClustersXCantPuntos[i]) for i in range(0,self.kmeans.n_clusters)]
+         print('numClusters', self.kmeans.n_clusters)
+         clusterGenerado=Cluster.Cluster(data,etiquetaX,etiquetaY,self.kmeans.labels_,self.kmeans.n_clusters,np.array(self.kmeans.cluster_centers_))
+         
+         
+         
+         return clusterGenerado
+     
         
-         
-         plot.scatter(data[:, 0], data[:, 1],c=colormap[self.kmeans.labels_])
-         correlacion=np.corrcoef(data[:, 0],data[:, 1])
-         print ('coeficiente de correlacion\n', correlacion)
-         
-         #plot.scatter(data[:, 0], data[:, 1],c=prediccion)
-         #plot.legend(colormap,labels,bbox_to_anchor=(0.0,0.0), loc=2, borderaxespad=0.)
-         
-         plot.set(xlabel=etiquetaX, ylabel=etiquetaY)
-         plot.axis('tight')
-         
-         #cluster.axis('tight',xmin=int(min(data[:, 0])),ymin=int(min(data[:, 1])),xmax=int(max(data[:, 0]))+1,ymax=int(max(data[:, 1]))+1) #scaling para los ejes del plot
-         
-         #tight muestra toda la info posible. Cualquier cosa referir a:
-         # https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.axis.html#matplotlib.axes.Axes.axis
-         '''
-         auxX=[x for x in range (int(min(data[:, 0])),int(max(data[:, 0]))+1)]
-         auxY=[x for x in range (int(min(data[:, 1])),int(max(data[:, 1]))+1)]
-         cluster.set_xlim(auxX[0],auxX[1]) #establece el eje X a un rango 
-         cluster.set_ylim(auxY[0],auxY[1])
-        '''
-        
-         correlacionXY=float("{0:.5f}".format(correlacion[0,1])) #correlacion es una matriz de todo x con todo y, tiene 1 en la diagonal
-         clusterGenerado=Cluster.Cluster(fig,correlacionXY,diccClustersXCantPuntos,diccClustersXColores)
-         return clusterGenerado    #retorno de tipo MATPLOTLIB.FIGURE
         
         
          

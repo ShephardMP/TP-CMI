@@ -23,7 +23,9 @@ import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 import Cluster as Cluster
-
+import numpy as np
+import matplotlib.cm as cm
+import matplotlib.colors as color
 
 def vp_start_gui(cluster=None):
     '''Starting point when module is the main routine.'''
@@ -63,10 +65,10 @@ class VentanaPloteo:
     
     
     
-    def setPuntos(self,cluster):
+    def setPuntos(self,cluster, diccClustersXColores):
         
         labelsCont=cluster.getClustersYPuntos()
-        labelsColor=cluster.getClustersYColores()
+        labelsColor=diccClustersXColores
         posX=15
         posY=150
         
@@ -118,12 +120,32 @@ class VentanaPloteo:
         self.mostrarPuntos.configure(highlightthickness=0)
         self.mostrarPuntos.create_text(15,115,text="Cantidad de Puntos\n por cluster",anchor='w',justify='center', font=('Arial',12))
         self.mostrarPuntos.create_text(15,80,text='Correlacion: ' + str(cluster.getCorrelacion()),anchor='w',justify='center', font=('Arial',12))
-        self.setPuntos(cluster)
+       
         
         self.top.protocol("WM_DELETE_WINDOW",self.close)
         #protocol es una parte de la libreria tkinter, permite aplicar funcionalidad junto con el WINDOWS MANAGER
         #Aca, cuando apreto la X que cierra la ventana se ejecuta el metodo self.close
-        self.plot = FigureCanvasTkAgg(cluster.getFigura(), master=top)
+        
+        colormap = cm.rainbow(np.linspace(0, 1, cluster.getCantClusters()))
+        diccClustersXColores={}
+         
+        auxColor=0
+        for i in cluster.getNombresClusters():
+             diccClustersXColores[i]=color.to_hex(colormap[auxColor]) #transformo el color a hexadecimal para ser mas portable
+             auxColor+=1
+            
+        data=cluster.getData() #matrix
+        fig=Figure(figsize=(6,6))
+        
+        plot=fig.add_subplot(111)
+        centers=cluster.getCenters()
+        plot.scatter(data[:, 0], data[:, 1],c=colormap[cluster.getDistribucion()])
+        plot.scatter(centers[:, 0], centers[:, 1], marker="x", color='black')
+        plot.set(xlabel=cluster.getEtiquetaX(), ylabel=cluster.getEtiquetaY())
+        plot.axis('tight')
+        self.plot = FigureCanvasTkAgg(fig, master=top)
+        
+        self.setPuntos(cluster, diccClustersXColores)
         #print(cluster.getCantPuntos(0))
       
         
@@ -144,14 +166,15 @@ if __name__ == '__main__':
     dicc={1:43,2:542}
     
     #diccColores={1:'blue',2:'green'}
-    import numpy as np
-    import matplotlib.cm as cm
-    import matplotlib.colors as color
+
     colormap = cm.rainbow(np.linspace(0, 1, 2))
+    X = np.array([[1, 2], [1, 4], [1, 0],
+              [4, 2], [4, 4], [4, 0]])
     print(color.to_hex(colormap[0]))
     diccColores={1:color.to_hex(colormap[0]),2:color.to_hex(colormap[1])}
+    
     #diccColores={1:'blue',2:'green'}
-    vp_start_gui(Cluster.Cluster(f,0,dicc,diccColores))
+    vp_start_gui(Cluster.Cluster(X,'x','y',[0,0,0,1,1,1],2,np.array([[1,2],[1,2]]))) #lo de distribucion es bardero hacerlo aca en main
    
 
 

@@ -146,7 +146,6 @@ class Ventana_principal:
 
 
 
-
     def mostrarTablaPorTab(self,nombreTabla):
         if(len(self.mapaRutas)>1):
             self.tabActiva=self.mapaRutas[nombreTabla]
@@ -200,6 +199,7 @@ class Ventana_principal:
         self.CargarArchivo.configure(command=self.botonArchivos)
         self.CargarCategorias.configure(command=self.botonCategorias)
         self.cargarFiltros.configure(command=self.botonFiltros)
+
         self.generarCluster.configure(command=self.botonCluster)
         self.botonMerge.configure(command=self.hacerMergeTablas)
 
@@ -304,7 +304,7 @@ class Ventana_principal:
         self.generarCluster.configure(text='''Ver Cluster''')
         self.generarCluster.configure(width=137)
 
-  
+
 
         self.botonMerge = Button(top)
         self.botonMerge.place(x=10, rely=0.84, height=30, width=100)
