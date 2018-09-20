@@ -18,7 +18,7 @@ class ClusterGenerator:
 "------------------------------------------------------------------------------------"
 "------------------------------------------------------------------------------------"
 from sklearn.cluster import KMeans
-
+from sklearn import preprocessing
 
 import Cluster as Cluster
 import numpy as np
@@ -34,14 +34,17 @@ class ClusterKMeans(ClusterGenerator):
         
     def generarCluster(self, data,etiquetaX='',etiquetaY=''): #Data deberia ser un array-like o 2D-array, cualquier cosa, pensar Data=numpy.random.rand(3,4)
          
+         standarizedData=preprocessing.StandardScaler().fit_transform(data)
          
-         self.kmeans.fit(data)
-         prediccion=self.kmeans.predict(data) #esto es mas de colores
+         self.kmeans.fit(standarizedData) 
+         
+    
+         prediccion=self.kmeans.predict(standarizedData) #esto es mas de colores
         
          
         
          print('numClusters', self.kmeans.n_clusters)
-         clusterGenerado=Cluster.Cluster(data,etiquetaX,etiquetaY,self.kmeans.labels_,self.kmeans.n_clusters,np.array(self.kmeans.cluster_centers_))
+         clusterGenerado=Cluster.Cluster(standarizedData,etiquetaX,etiquetaY,self.kmeans.labels_,self.kmeans.n_clusters,np.array(self.kmeans.cluster_centers_))
          
          
          

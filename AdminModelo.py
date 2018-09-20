@@ -19,10 +19,13 @@ class AdminModelo:
     #por ejemplo si la ruta es alumnos.xls se puete dataset[alumnos]=data
     cargadorDefecto=None
     merge=None
+    
+    
     newCluster=None
 
     def __init__(self):
         self.datasets={}
+       
         self.cargadorDefecto=cd.CargadorDatosExcel() #esto puede cambiarse tranquilamente
         self.newCluster=clustGen.ClusterKMeans()
 
@@ -32,8 +35,10 @@ class AdminModelo:
 
         rutaArchivo = self.obtenerNombreDatasetNoRepetido(rutaArchivo, dataset)
 
-        self.datasets[rutaArchivo]=dataset
-        print(self.datasets[rutaArchivo].getNombre())
+        self.datasets[rutaArchivo]=dataset #la clave rutaArchivo es un path absoluto
+        
+        
+        
         return dataset, rutaArchivo
 
     def cargarFiltros(self,rutaArchivo=None,archivoDatos=None):
@@ -158,7 +163,7 @@ class AdminModelo:
         datasetMergeNombre = self.obtenerNombreDatasetNoRepetido(datasetMergeNombre, datasetMerge)
 
         self.datasets[datasetMergeNombre] = datasetMerge #se guarda el nuevo dataset en el diccionario de datasets
-
+        
         return [datasetMergeNombre, datasetMerge] #retorna el nombre del nuevo dataset y el dataset mismo
 
 
@@ -178,12 +183,14 @@ class AdminModelo:
             n = n + 1
         return nombre
 
-    def removeDataset(self,rutaClave):
-        #es necesario limpiar la entrada del dataset y los filtros y categorias asociados
+    def eliminarDataset(self,rutaClave):
+     
+        
+        
         self.datasets.pop(rutaClave)
-        self.filtros.pop(rutaClave)
-        self.categorias.pop(rutaClave)
-        self.categoriasInvalidas.pop(rutaClave)
+        
+        
+        
 
 if __name__ == '__main__':
     adminMod=AdminModelo()
