@@ -56,17 +56,24 @@ class Ventana_principal:
     adminInterfaz=None
 
     tabActiva=None #es el absolute path de la tab seleccionada
-    tabs=None
-    tablaActual = None
-    tablas=None #nombre y la tabla
+    tabs=None   #es una lista de los absolute path de las rutas que hay
+    tablaActual = None #la tabla dibujada y mostrada en la ventana principal
+    
+    tablas=None #nombre y la tablaInterfaz dibujada
     note=None
     mapaRutas=None #va a servir para mostrar una version resumida en la tab pero pudiendo comunicarse con el adminModelo
-
-    def DibujarTabla(self,dataset):
-          self.tablaActual = TI.TablaInterfaz(None, dataset.nombresColumnas(), cantidadFilasVisibles= 20)
-          self.tablaActual.place(x=10, y=150, anchoPix= 960)
-          self.tablaActual.cargarDataset(dataset)
-          return self.tablaActual
+    #por ejemplo, alumnos.xls es el resumen de c:\users\etc\....\alumnos.xls
+    def DibujarTabla(self,dataset=None):
+         
+        if(dataset is None): #es decir, quiero mostrar una tabla vacia
+            self.tablaActual=TI.TablaInterfaz(None, [''], cantidadFilasVisibles= 20)
+            self.tablaActual.place(x=10, y=150, anchoPix= 960)
+        else:
+            self.tablaActual = TI.TablaInterfaz(None, dataset.nombresColumnas(), cantidadFilasVisibles= 20)
+            self.tablaActual.place(x=10, y=150, anchoPix= 960)
+            self.tablaActual.cargarDataset(dataset)
+        
+        return self.tablaActual
 
     def botonArchivos(self):
         ruta=askopenfilename()
@@ -83,6 +90,7 @@ class Ventana_principal:
             self.note.seleccionarTab(auxRuta)
             self.tabActiva=ruta
             self.actualizarCombobox()
+           
 
     def agregarDataset(self, datasetNuevo, nombre):
         nuevaTabla = self.DibujarTabla(datasetNuevo)
@@ -93,6 +101,34 @@ class Ventana_principal:
         self.note.seleccionarTab(nombre)
         self.tabActiva = nombre
         self.actualizarCombobox()
+        
+        
+    def eliminarDataset(self,nombreDatasetMostrado) :
+        #esto es para evitar confusiones mas adelante, el nombreMostrado es el que esta en la ventana, por
+        #ejemplo alumnos.etc(1)
+        self.adminInterfaz.eliminarDataset(self.mapaRutas[nombreDatasetMostrado])
+        self.tabs.remove(self.mapaRutas[nombreDatasetMostrado]) #borro la tab correspondiente
+        del self.mapaRutas[nombreDatasetMostrado] #borro en el mapa la clave, ya que no necesito la version resumida de una tab que borre
+        
+        for lista in self.tablas: #limpio la tabla dibujada.
+            if(nombreDatasetMostrado in lista):
+                self.tablas.remove(lista)
+                
+ 
+        self.actualizarCombobox() #esto es por la lista en el combobox
+        
+        
+        
+        
+        '''
+        print("current tab {} ".format(self.tabActiva))
+        print("tabs {}".format(self.tabs))
+        print("mapaRutas {}".format(self.mapaRutas))
+        print("tablas {}".format(self.tablas))
+        '''
+      
+       
+       
 
     def actualizarCombobox(self):
         c = []
@@ -147,6 +183,7 @@ class Ventana_principal:
 
 
     def mostrarTablaPorTab(self,nombreTabla):
+        #notese que este metodo cambia la tabActiva
         if(len(self.mapaRutas)>1):
             self.tabActiva=self.mapaRutas[nombreTabla]
             for tabla in self.tablas:  #por cada lista se fija el nombre de la tabla para que coincida con la tab activa
@@ -157,7 +194,7 @@ class Ventana_principal:
                     tabla[1].place(x=10, y=150, anchoPix= 960)
                     self.tablaActual = tabla[1]
                    
-
+    
 
     def hacerMergeTablas(self):
         tablasAMergear = []
@@ -184,6 +221,9 @@ class Ventana_principal:
                 })],
             })]
             )
+    
+    def limpiarNotebook(self):
+        self.DibujarTabla()
 
     def insertarToolTips(self):
 
@@ -240,9 +280,12 @@ class Ventana_principal:
         #evitar problemas de paths, usa os
         THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
+        
         self.adminInterfaz=adminInterfaz #referencia al administrador de interfaz que se comunica con el admin de modelo para manejar la parte logica
         self.adminInterfaz.setMainWindow(self)
 
+        
+        
         self.CargarCategorias = Button(top)
         self.CargarCategorias.place(relx=0.12, rely=0.01, height=103, width=104)
         self.CargarCategorias.configure(activebackground="#d9d9d9")
@@ -325,6 +368,10 @@ class Ventana_principal:
         self.insertarCambios()
 
         self.note=Notebook.Notebook(top,self)
+        
+        
+        self.DibujarTabla()
+        
 
         self.tablas = []
 

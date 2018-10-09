@@ -85,12 +85,11 @@ class AdminInterfaz:
         self.mw.agregarDataset(datasetMerge[1], datasetMerge[0]) # se manda el dataset y el nombre
 
 
-    def mostrarArbol(self):
-        pass
+    
 
     def cargarDatos(self,ruta=None):
         #cuando en la interfaz se preciona el boton de cargar el excel, se llama a este metodo que llama al metodo en adminModelo para cargar los datos
-        print('adminInterfazCargarDatos')
+        #print('adminInterfazCargarDatos')
         #aplica filtros y categorias a los archivos despues de cargar o no filtros
 
 
@@ -100,7 +99,7 @@ class AdminInterfaz:
 
 
     def cargarCategorias(self,ruta=None,aArchivo=None):
-        print('adminInterfazCargarCategorias')
+        #print('adminInterfazCargarCategorias')
         return self.adminModelo.cargarCategorias(ruta,aArchivo)
 
 
@@ -108,7 +107,7 @@ class AdminInterfaz:
 
     def cargarFiltros(self,ruta=None,aArchivo=None):
         #parecido a lo de arriba, hay que definir un metodo en adminModelo que permita cargar los filtros
-        print('adminInterfazCargarFiltros')
+        #print('adminInterfazCargarFiltros')
         return self.adminModelo.cargarFiltros(ruta,aArchivo)
 
 
@@ -116,6 +115,9 @@ class AdminInterfaz:
 
     def obtenerDataset(self,claveDataset):
         return self.adminModelo.getDataset(claveDataset)
+    
+    def eliminarDataset(self, nombreMapeadoEnModelo):
+        self.adminModelo.eliminarDataset(nombreMapeadoEnModelo)
 
     def __test__(self):
         dataframe=self.adminModelo.hacerMergeDatasets()
