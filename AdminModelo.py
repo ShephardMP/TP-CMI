@@ -8,10 +8,10 @@ import Dataset as ds
 import CargadorDatos as cd
 import Filtro as fil
 import Categoria as cat
-import ClusterGenerator as clustGen
+import ClusteringGenerator as clustGen
 import ArchivoCategorias as archCat
 import ArchivoFiltros as archFil
-
+import Indicador as indicador
 
 class AdminModelo:
     datasets = None
@@ -19,15 +19,17 @@ class AdminModelo:
     #por ejemplo si la ruta es alumnos.xls se puete dataset[alumnos]=data
     cargadorDefecto=None
     merge=None
-    
-    
-    newCluster=None
+    indicadores=None
+
+    newClustering=None
 
     def __init__(self):
         self.datasets={}
-       
+        self.indicadores=[]
         self.cargadorDefecto=cd.CargadorDatosExcel() #esto puede cambiarse tranquilamente
-        self.newCluster=clustGen.ClusterKMeans()
+        self.newClustering=clustGen.ClusteringKMeans()
+
+        self.indicadores.append(indicador.IndicadorCantPuntos("Cantidad de puntos por cluster"))
 
     def cargarDatos(self,rutaArchivo):
         dataset=ds.Dataset()
@@ -36,9 +38,9 @@ class AdminModelo:
         rutaArchivo = self.obtenerNombreDatasetNoRepetido(rutaArchivo, dataset)
 
         self.datasets[rutaArchivo]=dataset #la clave rutaArchivo es un path absoluto
-        
-        
-        
+
+
+
         return dataset, rutaArchivo
 
     def cargarFiltros(self,rutaArchivo=None,archivoDatos=None):
@@ -82,9 +84,9 @@ class AdminModelo:
 
 
     def configurarCluster(self, cantidadClusters = 8, iteraciones = 10):
-        self.newCluster.setParametros(numClusters = cantidadClusters, initIteraciones = iteraciones)
+        self.newClustering.setParametros(numClusters = cantidadClusters, initIteraciones = iteraciones)
 
-    def generarCluster(self,columna1,columna2,dataframe=None):
+    def generarClustering(self,columna1,columna2,dataframe=None):
         #esto esta pensado para que cuando se llame para generar el cluster se llame con las columnas propiamente dichas
         if(dataframe is None):
             raise ValueError('el dataframe para generar el cluster no puede ser None')
@@ -95,7 +97,7 @@ class AdminModelo:
         dataCluster.cambiarColumnaANumerica(columna1)
         dataCluster.cambiarColumnaANumerica(columna2)
         dataCluster.sacarNaN(0,'any') #por fila, y si algun elemento es nan
-        return self.newCluster.generarCluster(dataCluster.toArray(),columna1,columna2)
+        return self.newClustering.generarClustering(dataCluster.toArray(),columna1,columna2)
 
 
     def getDataset(self,rutaClave):
@@ -159,11 +161,11 @@ class AdminModelo:
             datasetMerge.mergeCon(ds2, left_on = columnas1, right_on = columnas2)
         else:
             raise ValueError ("Error en el tipo de merge")
-        
+
         datasetMergeNombre = self.obtenerNombreDatasetNoRepetido(datasetMergeNombre, datasetMerge)
 
         self.datasets[datasetMergeNombre] = datasetMerge #se guarda el nuevo dataset en el diccionario de datasets
-        
+
         return [datasetMergeNombre, datasetMerge] #retorna el nombre del nuevo dataset y el dataset mismo
 
 
@@ -172,7 +174,7 @@ class AdminModelo:
         if(self.merge is None):
             raise ValueError('no hay merges en adminModelo')
         return self.merge
-    
+
     def obtenerNombreDatasetNoRepetido(self, nombre, dataset):
         n = 1
         while nombre in self.datasets:
@@ -184,13 +186,16 @@ class AdminModelo:
         return nombre
 
     def eliminarDataset(self,rutaClave):
-     
-        
-        
+
+
+
         self.datasets.pop(rutaClave)
-        
-        
-        
+
+
+    def getIndicadoresClusters(self):
+
+        return self.indicadores
+
 
 if __name__ == '__main__':
     adminMod=AdminModelo()
@@ -199,4 +204,4 @@ if __name__ == '__main__':
     adminMod.cargarFiltros('filtros.txt','alumnos.xlsx')
     adminMod.cargarCategorias('categorias.txt','alumnos.xlsx')
 
-    adminMod.generarCluster('titulo_secundario','nota',adminMod.hacerMergeDatasets())
+    adminMod.generarClustering('titulo_secundario','nota',adminMod.hacerMergeDatasets())

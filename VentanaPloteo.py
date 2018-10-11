@@ -18,20 +18,21 @@ except ImportError:
     py3 = 1
 
 import ventanaPloteo_support
-import matplotlib 
+import matplotlib
 #matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
-import Cluster as Cluster
+import Clustering as Clustering
+
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.colors as color
 
-def vp_start_gui(cluster=None):
+def vp_start_gui(clustering=None,indicadores=None):
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = Tk()
-    top = VentanaPloteo (root,cluster)
+    top = VentanaPloteo (root,clustering,indicadores)
     ventanaPloteo_support.init(root, top)
     root.mainloop()
 
@@ -54,46 +55,97 @@ def destroy_VentanaPloteo():
 class VentanaPloteo:
     canv=None
     mostrarPuntos=None
+    indicadores=None #listsa de indicadores cargados o definidos en el modelo
+    clustering=None #es el clastering hecho, tiene todos los cluster + info adicional
+    diccClustersXColores=None #es un mapeo entre el numero de cluster y el color que le fue asignado (ej, 0:Rojo)
+
     def close(self):
-        
+
         self.top.destroy()  #Este se encarga de limpiar los widgets pero no necesariamente termina la ejecucion del mainloop
         #especialmente si top es una instancia de topLevel
         self.top.quit() #salgo del mainloop, sin embargo puede existir codigo todavia ejecutando por detras
         #este es el caso del ploteo y el metodo draw(). Son metodos que pueden seguir interactuando con los widgets
-        
+
         #aunque parezca contradictorio la union de estos dos metodos permite que termine la ventana correctamente
-    
-    
-    
-    def setPuntos(self,cluster, diccClustersXColores):
-        
-        labelsCont=cluster.getClustersYPuntos()
+
+
+
+    def setPuntos(self,clustering, diccClustersXColores):
+        self.__resetCanvasPuntos__()
+        labelsCont=clustering.getClustersYPuntos()
         labelsColor=diccClustersXColores
         posX=15
         posY=150
-        
+
         for k in labelsCont.keys():
             texto='cluster '+ str(k) + ' : ' + str(labelsCont[k])
             self.mostrarPuntos.create_oval(posX-15,posY-5,posX-5,posY+5,width=1,fill=labelsColor[k],outline=labelsColor[k]) #tienen la misma clave
             self.mostrarPuntos.create_text(posX,posY,text=texto,anchor='w',font=('Arial',10))
-            
-            
             posY+=20
-    def __init__(self, top=None, cluster=None):
+
+
+
+    def ordenarListaClusters(self,event):
+        nombreIndicadorSeleccionado=self.comboIndicadores.get()
+
+        indicadorSeleccionado=None
+        for i in self.indicadores:
+            if(i.getNombreIndicador() == nombreIndicadorSeleccionado): #es un chequeo de valor!!!, no te identidad, el operador IS no funciona
+                indicadorSeleccionado=i
+                break
+        if(indicadorSeleccionado is None):
+            raise ValueError("Indicador no se pudo identificar")
+        nuevoOrden=[]
+        nuevoOrden=self.clustering.getOrdenClusters(indicadorSeleccionado)
+        #aca hay una optimizacion pendiente, el indicadorSeleccionado se ejecuta dos veces, uno para ordenar la lista dentro de Clustering
+        #y otro para reobtener los valores. Esto puede ser costoso, pero queda como pendiente si es necesario en el caso de que el indicador sea muy caro de calcular
+        self.setListaClusters(nuevoOrden,indicadorSeleccionado,self.diccClustersXColores)
+
+
+    def setListaClusters(self,ordenClusters,indicador,diccColores):
+        #orden de cluster expresa desde comienzo a fin un orden definido para los cluster bajo una determinada metrica. ES UNA LISTA DE CLUSTERS, NO DE NUMEROS
+        #el diccionario de colores es para mostrar los puntos para mantener relacion con lo que muestra el grafico del Canvas
+
+        #es una copia del metodo viejo setPuntos, que mostraba los puntos y clusters con la cantidad de puntos. Eso se abstrajo para distintos
+        #indicadores y distintos valores, no solo cantPuntos
+        self.__resetCanvasPuntos__()
+        posX=15
+        posY=150
+        for cluster in ordenClusters:
+            texto='cluster '+ str(cluster.getID()) + ' : ' + str(indicador.evaluarCluster(cluster))
+            color=diccColores[cluster.getID()]
+            self.mostrarPuntos.create_oval(posX-15,posY-5,posX-5,posY+5,width=1,fill=color,outline=color) #tienen la misma clave
+            self.mostrarPuntos.create_text(posX,posY,text=texto,anchor='w',font=('Arial',10))
+            posY+=20
+
+
+    def __resetCanvasPuntos__(self):
+        #esto funciona eliminando todo componente que se haya agregado al canvas.
+        #en general tambien se desea incluir las dos leyendas de correlacion y el indicador.
+        #en cualquier momento se puede decidir sacar las ultimas dos lineas para que lo haga el metodo que haga el reset, para
+        #asi tener un reset mas semanticamente correcto
+        self.mostrarPuntos.delete("all")
+        self.mostrarPuntos.create_text(5,115,text="Indicador",anchor='w',justify='center', font=('Arial',12))
+        self.mostrarPuntos.create_text(5,80,text='Correlacion: ' + str(self.clustering.getCorrelacion()),anchor='w',justify='center', font=('Arial',12))
+
+    def __init__(self, top=None, clustering=None,indicadores=None):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
         _fgcolor = '#000000'  # X11 color: 'black'
         _compcolor = '#d9d9d9' # X11 color: 'gray85'
-        _ana1color = '#d9d9d9' # X11 color: 'gray85' 
-        _ana2color = '#d9d9d9' # X11 color: 'gray85' 
+        _ana1color = '#d9d9d9' # X11 color: 'gray85'
+        _ana2color = '#d9d9d9' # X11 color: 'gray85'
+
         self.top=top
         self.top.geometry("888x500+268+250")
         self.top.title("VentanaPloteo")
         self.top.configure(background="white")
         self.top.minsize(width=888, height=500)
 
-        
+        self.indicadores=indicadores
+        self.clustering=clustering
+
         self.canv = Canvas(top)
         self.canv.place(relx=0.01, rely=0.02, relheight=0.96, relwidth=0.81)
         self.canv.configure(background="white")
@@ -110,61 +162,76 @@ class VentanaPloteo:
         self.mostrarPuntos.configure(background="white")
         self.mostrarPuntos.configure(borderwidth="0")
         self.mostrarPuntos.configure(insertbackground="black")
-        
-     
+
+
         self.mostrarPuntos.configure(relief=RIDGE)
         self.mostrarPuntos.configure(selectbackground="#c4c4c4")
         self.mostrarPuntos.configure(selectforeground="black")
         self.mostrarPuntos.configure(width=256)
-        
+
         self.mostrarPuntos.configure(highlightthickness=0)
-        self.mostrarPuntos.create_text(15,115,text="Cantidad de Puntos\n por cluster",anchor='w',justify='center', font=('Arial',12))
-        self.mostrarPuntos.create_text(15,80,text='Correlacion: ' + str(cluster.getCorrelacion()),anchor='w',justify='center', font=('Arial',12))
-       
-        
+
+        #agrego texto al canvas, esto es eliminable, todo lo anterior era config
+        self.mostrarPuntos.create_text(5,115,text="Indicador",anchor='w',justify='center', font=('Arial',12))
+        self.mostrarPuntos.create_text(5,80,text='Correlacion: ' + str(clustering.getCorrelacion()),anchor='w',justify='center', font=('Arial',12))
+
+
+
+        self.comboIndicadores = ttk.Combobox(self.mostrarPuntos)
+        self.comboIndicadores.place(relx=0.3, rely=0.22, relheight=0.05, relwidth=0.65)
+        self.comboIndicadores.configure(takefocus="")
+        self.comboIndicadores.bind("<<ComboboxSelected>>", self.ordenarListaClusters)
+
+        auxListNombresIndic=[]
+        for indic in self.indicadores:
+            auxListNombresIndic.append(indic.getNombreIndicador())
+
+        self.comboIndicadores["values"]=auxListNombresIndic
         self.top.protocol("WM_DELETE_WINDOW",self.close)
         #protocol es una parte de la libreria tkinter, permite aplicar funcionalidad junto con el WINDOWS MANAGER
         #Aca, cuando apreto la X que cierra la ventana se ejecuta el metodo self.close
-        
-        colormap = cm.rainbow(np.linspace(0, 1, cluster.getCantClusters()))
-        diccClustersXColores={}
-         
+
+
+
+        colormap = cm.rainbow(np.linspace(0, 1, clustering.getCantClusters()))
+        self.diccClustersXColores={}
+
         auxColor=0
-        for i in cluster.getNombresClusters():
-             diccClustersXColores[i]=color.to_hex(colormap[auxColor]) #transformo el color a hexadecimal para ser mas portable
+        for i in clustering.getNombresClusters():
+             self.diccClustersXColores[i]=color.to_hex(colormap[auxColor]) #transformo el color a hexadecimal para ser mas portable
              auxColor+=1
-            
-        data=cluster.getData() #matrix
+
+        data=clustering.getData() #matrix
         fig=Figure(figsize=(6,6))
-        
+
         plot=fig.add_subplot(111)
-        centers=cluster.getCenters()
-        plot.scatter(data[:, 0], data[:, 1],c=colormap[cluster.getDistribucion()])
+        centers=clustering.getCenters()
+        plot.scatter(data[:, 0], data[:, 1],c=colormap[clustering.getDistribucion()])
         plot.scatter(centers[:, 0], centers[:, 1], marker="x", color='black')
-        plot.set(xlabel=cluster.getEtiquetaX(), ylabel=cluster.getEtiquetaY())
+        plot.set(xlabel=clustering.getEtiquetaX(), ylabel=clustering.getEtiquetaY())
         plot.axis('tight')
         self.plot = FigureCanvasTkAgg(fig, master=top)
-        
-        self.setPuntos(cluster, diccClustersXColores)
-        #print(cluster.getCantPuntos(0))
-      
-        
+
+        self.setPuntos(clustering, self.diccClustersXColores)
+        #print(clustering.getCantPuntos(0))
+
+
         toolbar = NavigationToolbar2TkAgg(self.plot, top) #es la barra de abajo de navegacion
         toolbar.update()
-        self.plot.get_tk_widget().pack(side=LEFT, fill=BOTH, expand=1) 
+        self.plot.get_tk_widget().pack(side=LEFT, fill=BOTH, expand=1)
         self.mostrarPuntos.pack(side=RIGHT,fill=BOTH,expand=0)
         #en realidad es Tkinter.TOP pero importe como from tkinter import * (esto podria ser una mala practica pero no afecta mucho en este modulo)
         self.plot.draw()
-       
-        
+
+
 if __name__ == '__main__':
-    
+
     f=Figure(figsize=(6,6))
     ax=f.add_subplot(111)
     ax.scatter([1,2,3,2,7],[2,3,42,1,3])
     ax.axis(tight=True)
     dicc={1:43,2:542}
-    
+
     #diccColores={1:'blue',2:'green'}
 
     colormap = cm.rainbow(np.linspace(0, 1, 2))
@@ -172,9 +239,6 @@ if __name__ == '__main__':
               [4, 2], [4, 4], [4, 0]])
     print(color.to_hex(colormap[0]))
     diccColores={1:color.to_hex(colormap[0]),2:color.to_hex(colormap[1])}
-    
+    import Indicador as ind
     #diccColores={1:'blue',2:'green'}
-    vp_start_gui(Cluster.Cluster(X,'x','y',[0,0,0,1,1,1],2,np.array([[1,2],[1,2]]))) #lo de distribucion es bardero hacerlo aca en main
-   
-
-
+    vp_start_gui(Clustering.Clustering(X,'x','y',[0,0,0,1,1,1],2,np.array([[1,2],[1,2]])),[ind.IndicadorCantPuntos("Cantidad de puntos por cluster")]) #lo de distribucion es bardero hacerlo aca en main

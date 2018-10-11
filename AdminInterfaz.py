@@ -50,7 +50,7 @@ class AdminInterfaz:
 
         #ventanaSeleccion es responsable de mostrar un el nobre del archivo y sus columnas para poder ser elegidas
         VentanaSeleccion.vp_start_gui(nombreArchivo.split('/')[-1], self.listArchivoYColumnas,self.opcionesElegidas,numClusters)
-        
+
         if(len(self.opcionesElegidas)<2):
             raise ValueError('no se eligieron dos opciones para hacer clustering')
         if(len(numClusters)!=1):
@@ -69,11 +69,11 @@ class AdminInterfaz:
 
     def mostrarCluster(self, rutaArchivo):
         dataset = self.adminModelo.getDataset(rutaArchivo)
-        
-        cluster=self.adminModelo.generarCluster(self.opcionesElegidas[0],self.opcionesElegidas[1],dataset)
-       
-        VentanaPloteo.vp_start_gui(cluster)
-        
+
+        cluster=self.adminModelo.generarClustering(self.opcionesElegidas[0],self.opcionesElegidas[1],dataset)
+
+        VentanaPloteo.vp_start_gui(cluster,self.adminModelo.getIndicadoresClusters())
+
 
 
     def abrirVentanaMerge(self, nombresDatasetsAMergear):
@@ -85,7 +85,7 @@ class AdminInterfaz:
         self.mw.agregarDataset(datasetMerge[1], datasetMerge[0]) # se manda el dataset y el nombre
 
 
-    
+
 
     def cargarDatos(self,ruta=None):
         #cuando en la interfaz se preciona el boton de cargar el excel, se llama a este metodo que llama al metodo en adminModelo para cargar los datos
@@ -115,7 +115,7 @@ class AdminInterfaz:
 
     def obtenerDataset(self,claveDataset):
         return self.adminModelo.getDataset(claveDataset)
-    
+
     def eliminarDataset(self, nombreMapeadoEnModelo):
         self.adminModelo.eliminarDataset(nombreMapeadoEnModelo)
 
