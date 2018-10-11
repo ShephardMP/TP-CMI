@@ -35,5 +35,17 @@ class IndicadorCantPuntos(Indicador):
          super().__init__(nombre)
 
      def evaluarCluster(self,cluster):
-        
+
         return cluster.getCantidadPuntos()
+
+
+class IndicadorCantPuntosEnColumna(Indicador):
+
+     columna=3
+     def __init__(self, nombre,col):
+         super().__init__(nombre)
+         self.columa=col
+
+     def evaluarCluster(self,cluster):
+
+        return cluster.getCantidadPuntosEnColumna(self.columa)
