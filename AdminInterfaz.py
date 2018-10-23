@@ -119,6 +119,9 @@ class AdminInterfaz:
     def eliminarDataset(self, nombreMapeadoEnModelo):
         self.adminModelo.eliminarDataset(nombreMapeadoEnModelo)
 
+    def guardarDataset(self,nombreMapeadoEnModelo,nombre):
+        self.adminModelo.guardarDataset(nombreMapeadoEnModelo,nombre)
+
     def __test__(self):
         dataframe=self.adminModelo.hacerMergeDatasets()
 

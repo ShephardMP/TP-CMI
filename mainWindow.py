@@ -179,8 +179,12 @@ class Ventana_principal:
 
        #le mando la tab activa para hacer clustering, se espera que se elija la del merge de datasets
        #de caso contrario el usuario vera un arhivo que no espera y lo puede solucionar tranquilamente
+    def abrirDialogoDeGuardado(self):
+        print(self.adminInterfaz.obtenerDataset(self.tabActiva).datos().shape[0]) #numero de filas de dataframe
+        filepath=filedialog.asksaveasfile(mode='w',defaultextension='.xlsx',confirmoverwrite=False)
 
-
+        if filepath is not None and filepath is not '':
+            self.adminInterfaz.guardarDataset(self.tabActiva,filepath.name)
 
     def mostrarTablaPorTab(self,nombreTabla):
         #notese que este metodo cambia la tabActiva
@@ -242,6 +246,7 @@ class Ventana_principal:
 
         self.generarCluster.configure(command=self.botonCluster)
         self.botonMerge.configure(command=self.hacerMergeTablas)
+        self.guardarTabla.configure(command=self.abrirDialogoDeGuardado)
 
     def insertarCambios(self):
         #ESTE METODO GENERA CAMBIOS A LA INTERFAZ, POR EJEMPLO, LE DA A LOS BOTONES TOOLTIP Y LOS LIGA A OTRAS FUNCIONES
@@ -347,7 +352,20 @@ class Ventana_principal:
         self.generarCluster.configure(text='''Ver Cluster''')
         self.generarCluster.configure(width=137)
 
-
+        self.guardarTabla = Button(top)
+        self.guardarTabla.place(relx=0.7, rely=0.84, height=104, width=137)
+        self.guardarTabla.configure(activebackground="#d9d9d9")
+        self.guardarTabla.configure(activeforeground="#000000")
+        self.guardarTabla.configure(background="#d9d9d9")
+        self.guardarTabla.configure(disabledforeground="#a3a3a3")
+        self.guardarTabla.configure(foreground="#000000")
+        self.guardarTabla.configure(highlightbackground="#d9d9d9")
+        self.guardarTabla.configure(highlightcolor="black")
+        #self._img4 = PhotoImage(file=os.path.join(THIS_FOLDER,"./resources/cluster.png"))
+        #self.guardarTabla.configure(image=self._img4)
+        self.guardarTabla.configure(pady="0")
+        self.guardarTabla.configure(text='''guardarTabla''')
+        self.guardarTabla.configure(width=137)
 
         self.botonMerge = Button(top)
         self.botonMerge.place(x=10, rely=0.84, height=30, width=100)

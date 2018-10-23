@@ -6,6 +6,7 @@ Created on Mon Feb 26 04:57:25 2018
 """
 import Dataset as ds
 import CargadorDatos as cd
+import GuardadorDataframe as gd
 import Filtro as fil
 import Categoria as cat
 import ClusteringGenerator as clustGen
@@ -18,6 +19,7 @@ class AdminModelo:
     #es una Map<> o diccionario, la idea es que pueda indexarlos de acuerdo a la ruta
     #por ejemplo si la ruta es alumnos.xls se puete dataset[alumnos]=data
     cargadorDefecto=None
+    guardadorDefecto=None
     merge=None
     indicadores=None
 
@@ -27,12 +29,13 @@ class AdminModelo:
         self.datasets={}
         self.indicadores=[]
         self.cargadorDefecto=cd.CargadorDatosExcel() #esto puede cambiarse tranquilamente
+        self.guardadorDefecto=gd.GuardadorDataframeExcel()
         self.newClustering=clustGen.ClusteringKMeans()
 
         self.indicadores.append(indicador.IndicadorCantPuntos("Cantidad de puntos por cluster"))
         self.indicadores.append(indicador.IndicadorCantPuntosEnColumna("Cantidad de puntos en columna"))
         self.indicadores.append(indicador.IndicadorCantPuntosEnFila("Cantidad de puntos en fila"))
-        
+
     def cargarDatos(self,rutaArchivo):
         dataset=ds.Dataset()
         dataset.cargarDatos(self.cargadorDefecto, rutaArchivo)
@@ -193,6 +196,12 @@ class AdminModelo:
 
         self.datasets.pop(rutaClave)
 
+    def guardarDataset(self,rutaClave,nombre):
+        print("archivo ",nombre)
+        print('ruta', rutaClave)
+        print('existe', self.datasets[rutaClave])
+        print('existe', self.datasets)
+        self.guardadorDefecto.guardarDataframe(self.datasets[rutaClave].datos(),nombre) #datasets es un arreglo de datasets, lo que quiero guardar son dataframe de pandas que se consiguen mediante el metodo datos() de dataset
 
     def getIndicadoresClusters(self):
 
