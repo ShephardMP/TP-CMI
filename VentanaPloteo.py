@@ -23,7 +23,8 @@ import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 import Clustering as Clustering
-
+import EntradaParametros as EntradaParametros
+import Indicador as Indicador
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.colors as color
@@ -96,6 +97,13 @@ class VentanaPloteo:
                 break
         if(indicadorSeleccionado is None):
             raise ValueError("Indicador no se pudo identificar")
+
+
+        listaParametros=[]
+        if(isinstance(indicadorSeleccionado, Indicador.IndicadorParametrizado)): #quiero permitir una entrada de parametros de forma dinamica
+            EntradaParametros.vp_start_gui(listaParametros)
+            indicadorSeleccionado.setParametros(listaParametros)
+
         nuevoOrden=[]
         nuevoOrden=self.clustering.getOrdenClusters(indicadorSeleccionado)
         #aca hay una optimizacion pendiente, el indicadorSeleccionado se ejecuta dos veces, uno para ordenar la lista dentro de Clustering
@@ -143,7 +151,7 @@ class VentanaPloteo:
         style.configure('TCombobox', postoffset=(0,0,len(self.nombreIndicadorMasLargo)+5,0))
         self.comboIndicadores.configure(style='TCombobox')
         self.top.update()
-        
+
 
     def __init__(self, top=None, clustering=None,indicadores=None):
         '''This class configures and populates the toplevel window.
@@ -282,4 +290,4 @@ if __name__ == '__main__':
     diccColores={1:color.to_hex(colormap[0]),2:color.to_hex(colormap[1])}
     import Indicador as ind
     #diccColores={1:'blue',2:'green'}
-    vp_start_gui(Clustering.Clustering(X,'x','y',[0,0,0,1,1,1],2,np.array([[1,2],[1,2]])),[ind.IndicadorCantPuntos("Cantidad de puntos por cluster"),ind.IndicadorCantPuntos("Cantidad de puntos en primer columna")]) #lo de distribucion es bardero hacerlo aca en main
+    vp_start_gui(Clustering.Clustering(X,'x','y',[0,0,0,1,1,1],2,np.array([[1,2],[1,2]])),[ind.IndicadorCantPuntos("Cantidad de puntos por cluster"),ind.IndicadorCantPuntosEnColumna("Cantidad de puntos en primer columna")]) #lo de distribucion es bardero hacerlo aca en main

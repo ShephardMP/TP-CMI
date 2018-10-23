@@ -25,10 +25,18 @@ class Cluster:
     def getCantidadPuntos(self):
         return len(self.diccPuntoID_Valores.keys())
 
-    def getCantidadPuntosEnColumna(self,columna):
+
+
+    def getCantidadPuntosEnAxis(self,axis=0,valorAxis=0): #axis=0 es columnas, axis=1 es filas
         suma=0
         for k in self.diccPuntoID_Valores.keys():
                 val=self.diccPuntoID_Valores[k]
-                if(val[0]==columna): #se obtiene la lista a partidar de la clave y se verifica que el primer elemento, que es columna, sea lo pedido
+                if(val[axis]==valorAxis): #se obtiene la lista a partidar de la clave y se verifica que el primer elemento, que es columna, sea lo pedido
                     suma+=1
         return suma
+        
+    def getCantidadPuntosEnColumna(self,columna):
+        return self.getCantidadPuntosEnAxis(0,columna)
+
+    def getCantidadPuntosEnFila(self,fila):
+        return self.getCantidadPuntosEnAxis(1,fila)
