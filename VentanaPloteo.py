@@ -23,7 +23,8 @@ import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 import Clustering as Clustering
-
+import EntradaParametros as EntradaParametros
+import Indicador as Indicador
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.colors as color
@@ -58,6 +59,7 @@ class VentanaPloteo:
     indicadores=None #listsa de indicadores cargados o definidos en el modelo
     clustering=None #es el clastering hecho, tiene todos los cluster + info adicional
     diccClustersXColores=None #es un mapeo entre el numero de cluster y el color que le fue asignado (ej, 0:Rojo)
+    nombreIndicadorMasLargo=None
 
     def close(self):
 
@@ -95,6 +97,13 @@ class VentanaPloteo:
                 break
         if(indicadorSeleccionado is None):
             raise ValueError("Indicador no se pudo identificar")
+
+
+        listaParametros=[]
+        if(isinstance(indicadorSeleccionado, Indicador.IndicadorParametrizado)): #quiero permitir una entrada de parametros de forma dinamica
+            EntradaParametros.vp_start_gui(listaParametros)
+            indicadorSeleccionado.setParametros(listaParametros)
+
         nuevoOrden=[]
         nuevoOrden=self.clustering.getOrdenClusters(indicadorSeleccionado)
         #aca hay una optimizacion pendiente, el indicadorSeleccionado se ejecuta dos veces, uno para ordenar la lista dentro de Clustering
@@ -128,6 +137,22 @@ class VentanaPloteo:
         self.mostrarPuntos.create_text(5,115,text="Indicador",anchor='w',justify='center', font=('Arial',12))
         self.mostrarPuntos.create_text(5,80,text='Correlacion: ' + str(self.clustering.getCorrelacion()),anchor='w',justify='center', font=('Arial',12))
 
+    def on_combo_configure(self,event):
+        #version modificada de https://stackoverflow.com/questions/39915275/change-width-of-dropdown-listbox-of-a-ttk-combobox
+        #ver comentario de ttk.style(self.top) y https://stackoverflow.com/questions/42599058/ttk-opening-secondary-window-when-applying-style/42599661#42599661
+        #basicamente es mandarle el root antes de crear el style
+        '''
+        from tkinter.font import  nametofont
+        font=nametofont(str(event.widget.cget('font')))
+        width=font.measure(self.nombreIndicadorMasLargo + "0") - event.width
+        '''
+        style = ttk.Style(self.top) #sin mandar el top window no funciona cuando se abre desde adminInterfaz
+
+        style.configure('TCombobox', postoffset=(0,0,len(self.nombreIndicadorMasLargo)+5,0))
+        self.comboIndicadores.configure(style='TCombobox')
+        self.top.update()
+
+
     def __init__(self, top=None, clustering=None,indicadores=None):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
@@ -137,9 +162,12 @@ class VentanaPloteo:
         _ana1color = '#d9d9d9' # X11 color: 'gray85'
         _ana2color = '#d9d9d9' # X11 color: 'gray85'
 
+
+
+
         self.top=top
-        self.top.geometry("888x500+268+250")
-        self.top.title("VentanaPloteo")
+        self.top.geometry("1000x500")
+        self.top.title("Clusters")
         self.top.configure(background="white")
         self.top.minsize(width=888, height=500)
 
@@ -167,26 +195,45 @@ class VentanaPloteo:
         self.mostrarPuntos.configure(relief=RIDGE)
         self.mostrarPuntos.configure(selectbackground="#c4c4c4")
         self.mostrarPuntos.configure(selectforeground="black")
-        self.mostrarPuntos.configure(width=256)
+        self.mostrarPuntos.configure(width=300)
 
         self.mostrarPuntos.configure(highlightthickness=0)
 
         #agrego texto al canvas, esto es eliminable, todo lo anterior era config
+
         self.mostrarPuntos.create_text(5,115,text="Indicador",anchor='w',justify='center', font=('Arial',12))
         self.mostrarPuntos.create_text(5,80,text='Correlacion: ' + str(clustering.getCorrelacion()),anchor='w',justify='center', font=('Arial',12))
 
 
 
-        self.comboIndicadores = ttk.Combobox(self.mostrarPuntos)
-        self.comboIndicadores.place(relx=0.3, rely=0.22, relheight=0.05, relwidth=0.65)
-        self.comboIndicadores.configure(takefocus="")
-        self.comboIndicadores.bind("<<ComboboxSelected>>", self.ordenarListaClusters)
+        #style = ttk.Style()
+        #style.configure('TCombobox', postoffset=(0,0,len(self.nombreIndicadorMasLargo)+5,0))
 
+
+
+        self.comboIndicadores = ttk.Combobox(self.mostrarPuntos,style='TCombobox')
+        self.comboIndicadores.place(relx=0.3, rely=0.22, relheight=0.05, relwidth=0.6)
+        self.comboIndicadores.configure(takefocus="")
+        self.comboIndicadores.configure(state="readonly")
+
+
+        self.comboIndicadores.bind("<<ComboboxSelected>>", self.ordenarListaClusters)
+        self.comboIndicadores.bind("<ButtonPress-1>", self.on_combo_configure)
+
+        self.nombreIndicadorMasLargo=""
         auxListNombresIndic=[]
-        for indic in self.indicadores:
-            auxListNombresIndic.append(indic.getNombreIndicador())
+
+        for indic in indicadores:
+            nombre=indic.getNombreIndicador()
+            auxListNombresIndic.append(nombre)
+            if(len(nombre)>len(self.nombreIndicadorMasLargo)):
+                self.nombreIndicadorMasLargo=nombre
+
+
 
         self.comboIndicadores["values"]=auxListNombresIndic
+
+
         self.top.protocol("WM_DELETE_WINDOW",self.close)
         #protocol es una parte de la libreria tkinter, permite aplicar funcionalidad junto con el WINDOWS MANAGER
         #Aca, cuando apreto la X que cierra la ventana se ejecuta el metodo self.close
@@ -224,6 +271,8 @@ class VentanaPloteo:
         self.plot.draw()
 
 
+
+
 if __name__ == '__main__':
 
     f=Figure(figsize=(6,6))
@@ -241,4 +290,4 @@ if __name__ == '__main__':
     diccColores={1:color.to_hex(colormap[0]),2:color.to_hex(colormap[1])}
     import Indicador as ind
     #diccColores={1:'blue',2:'green'}
-    vp_start_gui(Clustering.Clustering(X,'x','y',[0,0,0,1,1,1],2,np.array([[1,2],[1,2]])),[ind.IndicadorCantPuntos("Cantidad de puntos por cluster")]) #lo de distribucion es bardero hacerlo aca en main
+    vp_start_gui(Clustering.Clustering(X,'x','y',[0,0,0,1,1,1],2,np.array([[1,2],[1,2]])),[ind.IndicadorCantPuntos("Cantidad de puntos por cluster"),ind.IndicadorCantPuntosEnColumna("Cantidad de puntos en primer columna")]) #lo de distribucion es bardero hacerlo aca en main

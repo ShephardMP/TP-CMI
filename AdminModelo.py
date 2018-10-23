@@ -30,7 +30,9 @@ class AdminModelo:
         self.newClustering=clustGen.ClusteringKMeans()
 
         self.indicadores.append(indicador.IndicadorCantPuntos("Cantidad de puntos por cluster"))
-
+        self.indicadores.append(indicador.IndicadorCantPuntosEnColumna("Cantidad de puntos en columna"))
+        self.indicadores.append(indicador.IndicadorCantPuntosEnFila("Cantidad de puntos en fila"))
+        
     def cargarDatos(self,rutaArchivo):
         dataset=ds.Dataset()
         dataset.cargarDatos(self.cargadorDefecto, rutaArchivo)
