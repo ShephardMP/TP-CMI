@@ -29,6 +29,8 @@ class Dataset:
         self.ds = dataframe
 
 
+
+
     def datos(self): #Retorna el Dataframe
         return self.ds
 
