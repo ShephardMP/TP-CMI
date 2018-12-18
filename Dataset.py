@@ -93,7 +93,7 @@ class Dataset:
         self.ds=self.ds[self.ds[columna].groupby(self.ds[agrupamiento]).apply(funcion)]
 
     def toArray(self):
-        return self.ds.values
+        return self.ds.values #retorna un numpy representation del dataframe
 
     def nombresColumnas(self):
         return list(self.ds.columns.values)

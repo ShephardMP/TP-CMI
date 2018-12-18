@@ -21,13 +21,15 @@ class AdminModelo:
     cargadorDefecto=None
     guardadorDefecto=None
     merge=None
-    indicadores=None
+    indicadores=None #todos los indicadores definidos
 
     newClustering=None
 
+    indicadoresGlobales=None #indicadores que precisan clustering
     def __init__(self):
         self.datasets={}
         self.indicadores=[]
+        self.indicadoresGlobales=[]
         self.cargadorDefecto=cd.CargadorDatosExcel() #esto puede cambiarse tranquilamente
         self.guardadorDefecto=gd.GuardadorDataframeExcel()
         self.newClustering=clustGen.ClusteringKMeans()
@@ -35,6 +37,20 @@ class AdminModelo:
         self.indicadores.append(indicador.IndicadorCantPuntos("Cantidad de puntos por cluster"))
         self.indicadores.append(indicador.IndicadorCantPuntosEnColumna("Cantidad de puntos en columna"))
         self.indicadores.append(indicador.IndicadorCantPuntosEnFila("Cantidad de puntos en fila"))
+
+        self.indicadores.append(indicador.IndicadorMediaX("valor de media eje X"))
+        self.indicadores.append(indicador.IndicadorMediaY("valor de media eje Y"))
+
+        self.indicadores.append(indicador.IndicadorColumnasAbarcadas("Columnas abarcadas"))
+        self.indicadores.append(indicador.IndicadorVolumen("Concentracion"))
+        self.indicadoresGlobales.append(indicador.IndicadorProporcionDelCluster("Proporcion del Cluster"))
+
+        self.indicadoresGlobales.append(indicador.IndicadorPorcentajeDePuntosEnColumna("% de puntos por cluster en columna"))
+        self.indicadoresGlobales.append(indicador.IndicadorPorcentajeDePuntosEnFila("% de puntos por cluster en fila"))
+
+
+
+        self.indicadores.extend(self.indicadoresGlobales) #agrega todos los globales a la lista de indicadores (generales)
 
     def cargarDatos(self,rutaArchivo):
         dataset=ds.Dataset()
@@ -88,7 +104,7 @@ class AdminModelo:
 
 
 
-    def configurarCluster(self, cantidadClusters = 8, iteraciones = 10):
+    def configurarCluster(self, cantidadClusters = 8, iteraciones = 100):
         self.newClustering.setParametros(numClusters = cantidadClusters, initIteraciones = iteraciones)
 
     def generarClustering(self,columna1,columna2,dataframe=None):
@@ -102,7 +118,10 @@ class AdminModelo:
         dataCluster.cambiarColumnaANumerica(columna1)
         dataCluster.cambiarColumnaANumerica(columna2)
         dataCluster.sacarNaN(0,'any') #por fila, y si algun elemento es nan
-        return self.newClustering.generarClustering(dataCluster.toArray(),columna1,columna2)
+        clustering=self.newClustering.generarClustering(dataCluster.toArray(),columna1,columna2)
+        for i in self.indicadoresGlobales:
+            i.setClustering(clustering)
+        return clustering
 
 
     def getDataset(self,rutaClave):
@@ -197,10 +216,12 @@ class AdminModelo:
         self.datasets.pop(rutaClave)
 
     def guardarDataset(self,rutaClave,nombre):
+        """
         print("archivo ",nombre)
         print('ruta', rutaClave)
         print('existe', self.datasets[rutaClave])
         print('existe', self.datasets)
+        """
         self.guardadorDefecto.guardarDataframe(self.datasets[rutaClave].datos(),nombre) #datasets es un arreglo de datasets, lo que quiero guardar son dataframe de pandas que se consiguen mediante el metodo datos() de dataset
 
     def getIndicadoresClusters(self):
