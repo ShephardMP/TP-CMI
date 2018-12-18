@@ -28,7 +28,8 @@ import Indicador as Indicador
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.colors as color
-
+import matplotlib.ticker
+import matplotlib.pyplot as plt
 def vp_start_gui(clustering=None,indicadores=None):
     '''Starting point when module is the main routine.'''
     global val, w, root
@@ -80,7 +81,7 @@ class VentanaPloteo:
         posY=150
 
         for k in labelsCont.keys():
-            texto='cluster '+ str(k) + ' : ' + str(labelsCont[k])
+            texto='cluster '+ str(k) #+ ' : ' + str(labelsCont[k])
             self.mostrarPuntos.create_oval(posX-15,posY-5,posX-5,posY+5,width=1,fill=labelsColor[k],outline=labelsColor[k]) #tienen la misma clave
             self.mostrarPuntos.create_text(posX,posY,text=texto,anchor='w',font=('Arial',10))
             posY+=20
@@ -244,19 +245,47 @@ class VentanaPloteo:
         self.diccClustersXColores={}
 
         auxColor=0
-        for i in clustering.getNombresClusters():
+
+        """
+        nombresClustersOrdenados=clustering.getOrdenClusters(Indicador.IndicadorColoreo('Indicador usado para mapeo de colores'))
+        nombresClustersOrdenados= [x.getID() for x in nombresClustersOrdenados] #era una lista de cluster, lo que quiero son las labels
+        print(nombresClustersOrdenados)
+        """
+        for i in clustering.getNombresClusters(): #antes era clustering.getNombresClusters()
              self.diccClustersXColores[i]=color.to_hex(colormap[auxColor]) #transformo el color a hexadecimal para ser mas portable
              auxColor+=1
 
         data=clustering.getData() #matrix
         fig=Figure(figsize=(6,6))
 
-        plot=fig.add_subplot(111)
+        plot=fig.add_subplot(111) #de tipo axis_subplot
+
+        rangos=clustering.getRangos() #minX, maxX, minY, maxY
+
+
+
         centers=clustering.getCenters()
         plot.scatter(data[:, 0], data[:, 1],c=colormap[clustering.getDistribucion()])
         plot.scatter(centers[:, 0], centers[:, 1], marker="x", color='black')
         plot.set(xlabel=clustering.getEtiquetaX(), ylabel=clustering.getEtiquetaY())
-        plot.axis('tight')
+
+
+        '''
+        ax2=plot.twinx() #otro eje Y
+
+        ax2.set_ylim(rangos[2],rangos[3])
+        l = plot.get_ylim()
+        l2 = ax2.get_ylim()
+        f = lambda x : for i in
+        ticks = f(plot.get_yticks())
+        ax2.yaxis.set_major_locator(matplotlib.ticker.FixedLocator(ticks))
+        '''
+
+
+
+
+
+
         self.plot = FigureCanvasTkAgg(fig, master=top)
 
         self.setPuntos(clustering, self.diccClustersXColores)
