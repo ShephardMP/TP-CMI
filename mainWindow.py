@@ -278,7 +278,7 @@ class Ventana_principal:
             [('selected', _compcolor), ('active',_ana2color)])
 
         top.geometry("999x712")
-        top.title("Ventana principal")
+        top.title("Analizador de Clusters")
         top.configure(background="#d9d9d9")
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
