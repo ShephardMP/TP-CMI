@@ -17,10 +17,17 @@ except ImportError:
     import tkinter.ttk as ttk
     py3 = 1
 
+
 import ventanaPloteo_support
 import matplotlib
 #matplotlib.use('TkAgg')
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+try:
+    from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk as NavigationToolbar2Tk
+except ImportError:
+    from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg as NavigationToolbar2Tk
+
 from matplotlib.figure import Figure
 import Clustering as Clustering
 import EntradaParametros as EntradaParametros
@@ -292,7 +299,7 @@ class VentanaPloteo:
         #print(clustering.getCantPuntos(0))
 
 
-        toolbar = NavigationToolbar2TkAgg(self.plot, top) #es la barra de abajo de navegacion
+        toolbar = NavigationToolbar2Tk(self.plot, top) #es la barra de abajo de navegacion
         toolbar.update()
         self.plot.get_tk_widget().pack(side=LEFT, fill=BOTH, expand=1)
         self.mostrarPuntos.pack(side=RIGHT,fill=BOTH,expand=0)
