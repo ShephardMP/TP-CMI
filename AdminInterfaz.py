@@ -2,7 +2,7 @@
 """
 Created on Fri Feb 23 21:35:15 2018
 
-@author: Mauro
+Autores: Medina Tomas. Pucheta Mauro.
 """
 
 import mainWindow
@@ -13,7 +13,7 @@ import VentanaPloteo
 import Dataset as ds
 class AdminInterfaz:
 
-    #SE ESPERA QUE SEAN STRINGS CON EL PATH A LSO ARCHIVOS DE DATOS
+    #SE ESPERA QUE SEAN STRINGS CON EL PATH A LOS ARCHIVOS DE DATOS
     adminModelo=None
     mw = None
 
