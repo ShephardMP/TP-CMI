@@ -26,10 +26,10 @@ class ClusterKMeans(ClusterGenerator):
     kmeans=None
     
 
-    def __init__(self, nClust=8, init='k-means++', it=10):
+    def __init__(self, nClust=8, init='k-means++', it=100):
         self.setParametros(nClust,init,it)   #si vacio, es default
         
-    def setParametros(self, numClusters=8, inicializacion='k-means++', initIteraciones=10):
+    def setParametros(self, numClusters=8, inicializacion='k-means++', initIteraciones=100):
         self.kmeans = KMeans(n_clusters=numClusters, init=inicializacion, n_init=initIteraciones)
         
     def generarCluster(self, data,etiquetaX='',etiquetaY=''): #Data deberia ser un array-like o 2D-array, cualquier cosa, pensar Data=numpy.random.rand(3,4)
